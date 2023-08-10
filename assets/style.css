@@ -8,7 +8,7 @@
 
 body 
 {
-  background-color: grey;
+  background-color: rgba(35, 22, 6, 0.888);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -20,7 +20,11 @@ body
 
 canvas
 {
-    border: 5px solid darkgrey;
+    margin: 10px;
     border-radius: 20px;
+}
+audio
+{
+  display: none;
 }
 
