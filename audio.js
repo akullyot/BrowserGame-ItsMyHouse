@@ -11,6 +11,10 @@ const hintSoundElement = new Audio("assets/audio/hint.wav");
 hintSoundElement.volume = 0.7;
 hintSoundElement.loop = false;
 
+const screamSoundElement = new Audio("assets/audio/scream.wav");
+screamSoundElement.volume = 0.9;
+screamSoundElement.loop = false;
+
 
 const addtoInventorySoundElement = new Audio("assets/audio/addToInventory.mp3");
 addtoInventorySoundElement.volume = 0.5;

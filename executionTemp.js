@@ -22,37 +22,46 @@ document.addEventListener("keydown", async function (e){
     userSprite.animateBoolean = true;
     let spriteHeight = userSprite.height;
     let spriteSpeed = userSprite.speed;
-    if(e.key === "a")
+    if(e.key === "a" || e.key == "ArrowLeft")
     {
+        //update the walking direction that exists for correct q movement through a painting
         previousWalkingDirection = "left"
-        userSprite.srcY = 9 * spriteHeight;
+        //find the correct sprite row 
+        userSprite.srcY = animationInformation.walkLeft.spriteRow * spriteHeight;
+        //will not let you move off the screen
         if (userSprite.xCoord > 0 )
         {
             userSprite.xCoord = userSprite.xCoord - spriteSpeed;
         }
     }
-    else if(e.key === "d")
+    else if(e.key === "d" || e.key == "ArrowRight")
     {
+        //update the walking direction that exists for correct q movement through a painting
        previousWalkingDirection = "right"
-       userSprite.srcY = 11 * spriteHeight;
+        //get the correct sprite row
+       userSprite.srcY = animationInformation.walkRight.spriteRow * spriteHeight;
+       //dont allow it to leave the end of the screen (some custom wiggle room to let it slightly leave)
        if (userSprite.xCoord < (playerAreaCanvas.width - userSprite.width/1.5))
        {
             userSprite.xCoord = userSprite.xCoord + spriteSpeed;
        }
     }  
-    else if (e.key == "s")
+    else if (e.key == "s" || e.key == "ArrowDown")
     {
-        userSprite.srcY = 10 * spriteHeight;
+        //update the walking direction that exists for correct q movement through a painting
+        userSprite.srcY = animationInformation.walkDown.spriteRow * spriteHeight;
+        //get the correct sprite row
         previousWalkingDirection = "down"
+        //some custom detection for the bottom
         if (userSprite.yCoord < 427)//(playerAreaCanvas.height + userSprite.height/7))
         {
             userSprite.yCoord = userSprite.yCoord + spriteSpeed;
         }
     }
-    else if (e.key == "w")
+    else if (e.key == "w" || e.key == "ArrowUp" )
     {
         previousWalkingDirection = "up"
-        userSprite.srcY = 8 * spriteHeight;
+        userSprite.srcY = animationInformation.walkUp.spriteRow * spriteHeight;
         if (userSprite.yCoord > - 20)
         {
             userSprite.yCoord = userSprite.yCoord - spriteSpeed;
@@ -123,4 +132,5 @@ window.onload = () =>
     updateStatsArea();
 
     updateTextArea();
+
 }

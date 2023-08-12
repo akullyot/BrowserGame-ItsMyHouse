@@ -161,7 +161,7 @@ class InteractableItem extends ImageClass
 }
 class MoveableImage extends ImageClass
 {
-    constructor (src, xCoord, yCoord,srcX,srcY,height,width,canvasID,speed,)
+    constructor (src, xCoord, yCoord,srcX,srcY,height,width,canvasID,speed)
     {
         super (src, xCoord, yCoord,height,width,canvasID);
         this.speed                     = speed;
@@ -188,8 +188,10 @@ class MoveableImage extends ImageClass
         this.byFurniture               = false;
         //gives the object name you are by for interacting purposes 
         this.Furnitureby               = null;
-            //turns off collision door detection when going through
+        //turns off collision door detection when going through
         this.usingDoor                 = null;
+        //turns off NPC sprite detection
+        this.insideWall                = null;
     }
     //Purpose: Move through the sprite sheet of your character to animate movement correctly
     animate()
@@ -202,8 +204,14 @@ class MoveableImage extends ImageClass
         }
         else
         {
+            //this is the default standing still, facing the player frame
             this.srcY = 10 * this.height;
             this.currentFrame = 0;
+        }
+        //used specifically for npc sprites to get them stuck in the 4th sprite row of "hurt" for the set timeout
+        if (this.srcX = "makeMeScared")
+        {
+            this.srcX = 4 * this.width;
         }
     
             //image, srcX, srcY, srcWidth, srcHeight, destX, destY, destWidth, destHeight
@@ -257,6 +265,315 @@ class MoveableImage extends ImageClass
     }
 
 }
+class NonPlayableCharacter extends MoveableImage
+{
+    constructor (src,xCoord,yCoord,srcX,srcY,height,width,canvasID,currentPathName,currentPathTrack)
+    {
+        super (src,xCoord,yCoord,srcX,srcY,height,width,canvasID);
+        this.speed = 1;
+        //used for spritesheet selection
+        this.srcX                      = srcX;
+        this.srcY                      = srcY;
+        //used for proper animation
+        this.animateBoolean            = false;
+        this.framesDrawn               = 0;
+        this.totalFrames               = 7;
+        this.currentFrame              = 0;
+        //used for pathing
+        //there are three different paths that are randomly selected once they finish
+        this.currentPathName           = null;
+        //each path has individual tracks
+        this.currentPathTrack          = null;
+        //how many seconds they have been on the path track
+        this.currentPathName           = currentPathName;
+        this.currentPathTrack          = currentPathTrack;
+        //used to take the NPC out of cower mode when the player moves far enough away
+        this.previousTrack             = null;
+        //TODO may not need
+        this.scaredState               = false;
+        //used for collision detection    
+        this.previousXCoord            = null;
+        this.previousYCoord            = null;
+        this.heightAndWidthAllowance   = 30;  
+
+    }
+    path()
+    {
+        //Purpose: Helper function in changing path directions
+        //Note: not working for some reason
+        function changeDirection(direction,sprite)
+        {
+            switch(direction)
+            {
+                case "up":
+                    sprite.srcY = animationInformation.walkUp.spriteRow * sprite.height;
+                    sprite.yCoord = sprite.yCoord - sprite.speed;
+                case "down":
+                    sprite.srcY = animationInformation.walkDown.spriteRow * sprite.height;
+                    sprite.yCoord = sprite.yCoord + sprite.speed;
+                case "right" :
+                    sprite.srcY = animationInformation.walkRight.spriteRow * sprite.height;
+                    sprite.xCoord = sprite.xCoord + sprite.speed;
+                case "left" :
+                    sprite.srcY = animationInformation.walkLeft.spriteRow * sprite.height;
+                    sprite.xCoord = sprite.xCoord + sprite.speed;  
+            }
+        }
+        //notes for first floor movement
+        const pathOne = ([721,211],[721,316],[560,316],[560,197],[252,197],[252,113], [322,113],[322,218],[497,218], [497,211], [721,211]);//back to starting point and loop
+        const breakOffPoints = ([721,211]);//the starting point);
+        const pathTwo = ([721,211], [721,253], [784,253], [784,78], [730,78])
+        //activate animation
+        this.animateBoolean = true;
+        // there will be x many paths, where each one is a walk direction and a certain amount of steps, defined by 
+        //going through path one 
+        switch (this.currentPathName)
+        {
+            case "pathOne":
+                if 
+                (
+                    (this.xCoord == 322 && this.yCoord == 113)
+                )
+                {
+
+                    this.currentPathTrack = "down";
+                }
+                else if 
+                (
+                    (this.xCoord == 560 && this.yCoord == 316)||
+                    (this.xCoord == 252 && this.yCoord == 197) ||
+                    (this.xCoord == 497 && this.yCoord == 218) 
+                )
+                {
+                    this.currentPathTrack = "up";  
+                }
+                else if 
+                (
+                    (this.xCoord == 721 && this.yCoord == 316)||
+                    (this.xCoord == 560 && this.yCoord == 197)
+                )
+                {
+                    this.currentPathTrack = "left"
+                }
+                else if 
+                (
+                    (this.xCoord == 252 && this.yCoord == 113)||
+                    (this.xCoord == 322 && this.yCoord == 218) ||
+                    (this.xCoord == 497 && this.yCoord == 211) 
+                )
+                {
+                    this.currentPathTrack = "right"
+                }
+                //adding in pausing if shes by a kitchen appliance
+                else if 
+                    ( this.xCoord == 623 && this.yCoord == 211)
+                {
+                    if (Math.random() > 0.007)
+                    {
+                        this.currentPathTrack = "paused"
+                    }
+                    else
+                    {
+                        this.currentPathTrack = "right"
+                    }
+                }
+                //see if it switches to path two or not 
+                else if (this.xCoord == 721 && this.yCoord == 211)
+                {
+                    if (Math.random() > 0.5)
+                    {
+                        this.currentPathTrack = "down"
+                    }
+                    else
+                    {
+                        this.currentPathTrack = "down"
+                        this.yCoord++;
+                        this.currentPathName = "pathTwo"
+                    }
+                }
+                break;
+            case "pathTwo" :
+                if 
+                (
+                    (this.xCoord == 984 && this.yCoord == 253) ||
+                    (this.xCoord == 691 && this.yCoord == 78) ||
+                    (this.xCoord == 785  && this.yCoord == 82)
+
+                )
+                {
+
+                    this.currentPathTrack = "down";
+                }
+                else if 
+                (
+                    (this.xCoord == 784 && this.yCoord == 253)||
+                    (this.xCoord == 720 && this.yCoord == 317)
+
+                )
+                {
+                    this.currentPathTrack = "up";  
+                }
+                else if 
+                (
+                    (this.xCoord == 784 && this.yCoord == 78) ||
+                    (this.xCoord == 785 && this.yCoord == 317)
+                )
+                {
+                    this.currentPathTrack = "left"
+                }
+                else if 
+                (
+                    (this.xCoord == 721 && this.yCoord == 253)||
+                    (this.xCoord == 691 && this.yCoord == 82) ||
+                    (this.xCoord == 720  && this.yCoord == 211)
+
+                )
+                {
+                    this.currentPathTrack = "right"
+                }
+                //adding in pausing if shes by the toiler appliance
+                else if 
+                    ( this.xCoord == 784 && this.yCoord == 80 )
+                {
+                    if (Math.random() > 0.007)
+                    {
+                        this.currentPathTrack = "paused"
+                    }
+                    else
+                    {
+                        this.currentPathTrack = "up"
+                    }
+                }
+                //see if it switches to path two or not 
+                else if (this.xCoord == 721 && this.yCoord == 211)
+                {
+                    if (Math.random() > 0.7)
+                    {
+                        this.currentPathTrack = "down"
+                    }
+                    else
+                    {
+
+                        this.currentPathName = "pathOne"
+                        this.currentPathTrack = "down"
+                        this.yCoord++;
+
+                    }
+                }
+                break;
+        }
+        // when the path is pointing downwards
+        if 
+        ( this.currentPathTrack == "down")
+        {
+            this.totalFrames = 7;
+            this.srcY = animationInformation.walkDown.spriteRow * this.height;
+            this.yCoord = this.yCoord + this.speed;
+        }
+        //when the path is pointing upwards
+        else if 
+        (
+            (this.currentPathTrack == "up")
+        )
+        {
+            this.totalFrames = 7;
+            this.srcY = animationInformation.walkUp.spriteRow * this.height;
+            this.yCoord = this.yCoord - this.speed;
+        }
+        //when the path is pointing leftwards
+        else if 
+        (
+            (this.currentPathTrack == "left")
+        )
+        {
+            this.totalFrames = 7;
+            this.srcY = animationInformation.walkLeft.spriteRow * this.height;
+            this.xCoord = this.xCoord - this.speed;
+
+        }
+        //when the path is pointing rightwards
+        else if 
+        (
+            ( this.currentPathTrack == "right")
+        )
+        {
+            this.totalFrames = 7;
+            this.srcY = animationInformation.walkRight.spriteRow * this.height;
+            this.xCoord = this.xCoord + this.speed;
+        }
+        else if 
+        (
+            (this.currentPathTrack == "paused")
+        )
+        {
+            this.srcY = animationInformation.walkUp.spriteRow * this.height;
+            this.totalFrames = 1;
+        }
+        else if (this.currentPathTrack == "scared")
+        {
+            //want the fourth frame in the crouching/hurt animation
+            this.totalFrames = 4;
+            this.srcY = 20 * this.height;
+            this.srcX = "makeMeScared";
+        }
+    }
+    //Purpose: if the player gets within 80 pixels of the player, lose a heart
+    detectPlayerNearby()
+    {
+        //collision detection when within like, 5 player widths and heights of a player
+        const player = userSprite;
+        if (
+            this.xCoord < player.xCoord + player.width  &&
+            this.xCoord + this.width > player.xCoord  &&
+            this.yCoord < player.yCoord + player.height &&
+            (this.yCoord + this.height) > player.yCoord
+            )
+        {
+            if (!userSprite.insideWall)
+            {
+                startledDialog.xCoord = (this.xCoord + 32);
+                startledDialog.yCoord = this.yCoord;
+                startledDialog.drawImage()
+                if (this.previousTrack == null)
+                {
+                    this.previousTrack = this.currentPathTrack;
+                    //this is an easy way as well to only take away one heart
+                    statsCanvas.health--;
+                    statsCanvas.updateHearts();
+                    screamSoundElement.play();
+                }
+                this.currentPathTrack = "scared";
+                this.scaredState = true;
+            }
+        }
+        else if
+        (
+            this.xCoord - 200 < player.xCoord + (player.width -player.heightAndWidthAllowance)  &&
+            this.xCoord + 200 > player.xCoord + player.heightAndWidthAllowance  &&
+            this.yCoord - 200< player.yCoord + (player.height) &&
+            this.yCoord + 200 > (player.yCoord + player.heightAndWidthAllowance)
+        )
+        {
+            if (!userSprite.insideWall)
+            {
+                warningDialog.xCoord = (this.xCoord + 32);
+                warningDialog.yCoord = this.yCoord;
+                warningDialog.drawImage(); 
+            }
+            //if false, put the warning question mark, if true restart the walking
+            //because the npc is far enough away 
+            if (this.scaredState)
+            {
+                this.scaredState = false;
+                this.currentPathTrack = this.previousTrack;
+                this.previousTrack = null;
+            }
+            
+        }
+
+    }
+}
+//TODO convert to children Player and NonPlayableCharacter
 class Background extends ImageClass
 {
     constructor (src, height, width, canvasID ,mapArrayObject,tileSize,floor)
@@ -317,6 +634,7 @@ class Background extends ImageClass
     // Argument: this.mapArrayObject.insidewalls
     darkenBehindTheWalls(array)
     {
+        let count = 0;
         for (var eachRow = 0; eachRow < this.gridRows; eachRow++ )
         {
             for (var eachCol = 0; eachCol < this.gridCols; eachCol++ )
@@ -328,34 +646,35 @@ class Background extends ImageClass
                     let fillerxCoord = this.tileSize * eachCol;
                     let  filleryCoord = this.tileSize * eachRow;
                     //when a candle is present, do collision detection and dont fill in those as brightly 
-                    if (userSprite.hasCandle)
-                    {
-                        if(
+                    //also used for usersprite.insidewall boolean
+                    if
+                    (
                             fillerxCoord < userSprite.xCoord + (userSprite.width -userSprite.heightAndWidthAllowance)  &&
                             fillerxCoord + this.tileSize > userSprite.xCoord + userSprite.heightAndWidthAllowance  &&
                             filleryCoord < userSprite.yCoord + (userSprite.height) &&
                             filleryCoord + this.tileSize > (userSprite.yCoord + userSprite.heightAndWidthAllowance)
-                        )
+                    )
+                    {
+                        count ++;
+                        userSprite.insideWall = true;
+                        if (userSprite.hasCandle)
                         {
-                            playerAreaCanvas.ctx.fillStyle = 'rgba(0,0,0,0.5w)';
-                            playerAreaCanvas.ctx.fillRect(fillerxCoord, filleryCoord, (this.tileSize), this.tileSize);
+                            playerAreaCanvas.ctx.fillStyle = 'rgba(0,0,0,0.2)';
                         }
-                        else
-                        {
-                            playerAreaCanvas.ctx.fillStyle = 'rgba(0,0,0,0.6)';
-                            playerAreaCanvas.ctx.fillRect(fillerxCoord, filleryCoord, this.tileSize, this.tileSize);
-                        }
-
-
+                        playerAreaCanvas.ctx.fillRect(fillerxCoord, filleryCoord, (this.tileSize), this.tileSize);
                     }
                     else
                     {
-                        playerAreaCanvas.ctx.fillStyle = 'rgba(0,0,0,0.6)';
-                        playerAreaCanvas.ctx.fillRect(fillerxCoord, filleryCoord, this.tileSize, this.tileSize);
+                            playerAreaCanvas.ctx.fillStyle = 'rgba(0,0,0,0.6)';
+                            playerAreaCanvas.ctx.fillRect(fillerxCoord, filleryCoord, this.tileSize, this.tileSize);
                     }
                 }
             }
-        }   
+        } 
+        if (count == 0)
+        {
+            userSprite.insideWall = false;
+        }
     }
     // Purpose: take the locations of the doors and add collision detection plus
     //          the subsequent option to press q to move through
@@ -461,6 +780,7 @@ class Door extends Wall
 }
 
 
+//Used in creating the canvases
 const fullAreaWidth = 960;
 const fullAreaHeight = 480;
 const widthAddition = 352;
@@ -469,19 +789,31 @@ const heightAddition = 100;
 const playerAreaCanvas = new Canvas ("playerArea", fullAreaWidth, fullAreaHeight);
 playerAreaCanvas.getCanvasMade();
 
+//Add in the image of the user Sprite
 const userSprite = new MoveableImage("assets/spriteSheets/playerspritesheet.png",56,7,0,0,64,64,"playerArea",7);
 userSprite.createImageElement();
 
+//Add in the images of the NPC sprites
+const ladyNPCSprite = new NonPlayableCharacter("assets/spriteSheets/ladySpriteSheet.png",721,211,0,0,64,64,"playerArea","pathOne", "down");
+ladyNPCSprite.createImageElement();
+
+//Add in the dialogue popups for the NPC 
+const startledDialog = new ImageClass ("assets/spriteSheets/scaredNPC.png",null, null, 32,32,"playerArea");
+startledDialog.createImageElement();
+const warningDialog = new ImageClass ("assets/spriteSheets/warningNPC.png",null, null, 32,32,"playerArea");
+warningDialog.createImageElement();
+//Add in the backgrounds for each floor
 const firstFloorBackground = new Background("assets/firstFloor/firstfloor.png",1000, 600, "playerArea",firstFloorMaps, 32);
 firstFloorBackground.createImageElement();
 
+//Add in all the interactable items 
+//First Floor
 const vanity = new InteractableItem('assets/firstFloor/Items/vanity.png', 480, 170, 32*2,32*2, false,true, false, ['candy', 'candle'])
 vanity.createImageElement();
 const stove = new InteractableItem('assets/firstFloor/Items/stove.png', 638, 193, 32,32, true,false, false);
 stove.createImageElement();
 const fridge = new InteractableItem('assets/firstFloor/Items/fridge.png', 672, 160, 32*2,32, false ,true, false, [])
 fridge.createImageElement();
-
 
 const bookshelfLeft = new InteractableItem('assets/firstFloor/Items/bookshelf.png', 5, 140, 32*2,32*2, false, false, false)
 bookshelfLeft.createImageElement();
@@ -547,6 +879,9 @@ function updatePlayerArea()
    
 
     //add in NPCs
+    ladyNPCSprite.animate();
+    ladyNPCSprite.path();
+    ladyNPCSprite.detectPlayerNearby();
     //add in the user
     if (userSprite.hasCandle)
     {

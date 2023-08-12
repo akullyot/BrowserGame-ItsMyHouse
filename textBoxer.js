@@ -3,7 +3,7 @@ const allTexts =
 {
     'starting'            : ["I've been living in these walls for months now. I want my house back.", "If I convince the current residents that this house is haunted ..", "I'll finally have my house back.", "But... How do I do it? ", "Behind the paintings are holes I made to move in and out of the walls.", "I just can't let them know I'm here.", "There's a book of paranormal encounters I found on the other side of the wall.", "I should go there and find it.", "First, it's pretty dark. I should try to steal a candle..."],
     'bookQuest'           : ["Quest 1 complete!", "Great. Now I can see.", "I should enter in the wall south of the dining table."],
-    'chairQuest'          : ["Quest 2 complete!","Lets look throught this book...", "The progress bar in my inventory shows how far I've gotten in the book","I have 10 more quests to complete.",  "Im sure if I complete this book the family will finally leave.", "*starts reading", "Chapter 1: Poltergeists", "So... poltergeists unexplainably move items.", "I should try with some chairs!"],
+    'chairQuest'          : ["Quest 2 complete!","Lets look throught this book...", "The progress bar in my inventory shows how far I've gotten in the book","I have 10 more quests to complete.",  "Im sure if I complete this book the family will finally leave.", "*starts reading*", "Chapter 1: Poltergeists", "So... poltergeists unexplainably move items.", "I should try with some chairs!"],
     'flickerLightsQuest'  : ["Quest 3 complete!"]
 }
 const allHints = 
@@ -16,7 +16,7 @@ const allHints =
 const allPlayerOptions =
 {
     'byDoor'                : "Press q to move through the painting",
-    'byStairs'              : '',
+    'byStairs'              : 'Press q to go to the other floor',
     'openingFurniture'      : "Press e to rummage through furniture",
     'pickingUpItem'         : "Press e to pickup item"
 }
