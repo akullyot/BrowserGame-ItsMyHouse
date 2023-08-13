@@ -62,17 +62,22 @@ class InteractableItem extends ImageClass
     constructor (src, xCoord, yCoord, height, width,isBreakable,isOpenable,isPickupItem,itemsInside)
     {
         super(src,xCoord,yCoord,height, width);
+        //there are different typres of furnitures with different functionalities that are
+        //turned on and off with booleans
         this.isBreakable    = isBreakable;
-        this.isOpenable     = isOpenable;  
+        //this.isDraggable    = isdraggable;
+        //these are items on the floor that you can pick up and add to inventory   
         this.isPickupItem   = isPickupItem; 
-        this.itemsInside    = itemsInside; 
-        
+        //these are desks/drawers you can rummage through
+        this.isOpenable     = isOpenable;
+        //THIS APPLIES to both isPickupItem and isOpenable. this is an array of the item itself/ the items inside. 
+        // Note: this will reset each time you reload a floor except for pickup items and quest items 
+        this.itemsInside    = itemsInside;    
     }
     drawFurniture()
     {
         //note: need to create an image before using
         playerAreaCanvas.ctx.drawImage(this.imageElement, this.xCoord, this.yCoord);
-
     }
     isClose(player)
     {
@@ -127,9 +132,7 @@ class InteractableItem extends ImageClass
                     {
                         TextCanvas.rewriteText('pickingUpItem');
                     }
-
                 }
-
         }
         else if((player.byFurniture && player.yCoord !== player.previousYCoord) || (player.byFurniture && player.xCoord !== player.previousXCoord))
         {
@@ -289,13 +292,11 @@ class NonPlayableCharacter extends MoveableImage
         this.currentPathTrack          = currentPathTrack;
         //used to take the NPC out of cower mode when the player moves far enough away
         this.previousTrack             = null;
-        //TODO may not need
         this.scaredState               = false;
         //used for collision detection    
         this.previousXCoord            = null;
         this.previousYCoord            = null;
         this.heightAndWidthAllowance   = 30;  
-
     }
     path()
     {
@@ -568,9 +569,7 @@ class NonPlayableCharacter extends MoveableImage
                 this.currentPathTrack = this.previousTrack;
                 this.previousTrack = null;
             }
-            
         }
-
     }
 }
 //TODO convert to children Player and NonPlayableCharacter

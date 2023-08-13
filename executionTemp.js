@@ -105,7 +105,6 @@ document.addEventListener("keydown", async function (e){
             else if (userSprite.Furnitureby.isPickupItem)
             {
                 statsCanvas.addInventoryItem(userSprite.Furnitureby)
-
             }
        }
 

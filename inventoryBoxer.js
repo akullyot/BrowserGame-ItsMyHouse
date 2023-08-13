@@ -29,6 +29,8 @@ class InventoryCanvas extends Canvas
             case 1:
                 //start warning the player they're about to die 
                 //TODO warning
+                //TODO flash the player area with a red line and the heart section with a red line 
+                
                 heartCover.xCoord = [126,164, 199, 234 ];
                 heartCover.yCoord = Array(4).fill(70) ;
                 //not using the inbult draw function because im doing weird stuff with the height and width 
