@@ -25,5 +25,5 @@ moveThroughPaintingSoundElement.volume = 0.3;
 moveThroughPaintingSoundElement.loop = false;
 
 const questCompleteSoundElement = new Audio("assets/audio/questComplete.mp3");
-moveThroughPaintingSoundElement.volume = 0.2;
+moveThroughPaintingSoundElement.volume = 0.1;
 moveThroughPaintingSoundElement.loop = false;

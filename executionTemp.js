@@ -71,23 +71,53 @@ document.addEventListener("keydown", async function (e){
     {
         if (userSprite.byDoor)
         {
-            userSprite.srcY = 20 * spriteHeight;
-            userSprite.totalFrames = 6;
-            //immediately turn off by door so no more qs register
+            userSprite.srcY = 14 * spriteHeight; // 14: arching animation but looks like grabbing
+            userSprite.totalFrames = 7;
+            //immediately turn off by door so no more q's register
+            //note: not perfect by any means 
             userSprite.byDoor = false;
-            //set a delay for turning off collision detection so you can travel through 
+            // removes the ability to bypass collision after 1 sec
+            userSprite.moveThroughPainting();
+            TextCanvas.rewriteText('returnToText');
+            //set a delay for turning off collision detection so you can travel through
+            //cant just stop the animation and redraw because you would exponentially call it with the requestAnimation frame 
             const awaitTimeout = delay =>
                 new Promise(resolve => setTimeout(resolve, delay));
-            awaitTimeout(1000).then(function() 
+            awaitTimeout(200).then(function() 
                 { 
                   userSprite.usingDoor = false;
                 });
-            // removes the ability to bypass collision
-            userSprite.moveThroughPainting();
+        }
+        else if (userSprite.byStair)
+        {
+            //Get correct user sprite location
+            if (playerAreaCanvas.floor == "secondFloor" && playerAreaCanvas.transitionFloor == "firstFloor")
+            {
+                userSprite.xCoord = 301;
+                userSprite.yCoord = 316;
+            }
+            else if (playerAreaCanvas.floor == "basement" && playerAreaCanvas.transitionFloor == "firstFloor")
+            {
+                userSprite.xCoord = 784;
+                userSprite.yCoord = 316;
+            }
+            else if (playerAreaCanvas.floor == "firstFloor" && playerAreaCanvas.transitionFloor == "basement")
+            {
+                userSprite.xCoord = 784;
+                userSprite.yCoord = 316;
+            }
+            else if (playerAreaCanvas.floor = "firstFloor" && playerAreaCanvas.transitionFloor == "secondFloor")
+            {
+                userSprite.xCoord = 273;
+                userSprite.yCoord = 246;
+            }
+            playerAreaCanvas.floor = "transition"
             TextCanvas.rewriteText('returnToText');
+            //TODO set all NPCs to their starting poistions
         }
         else
         {
+            //puts you back in default resting position
             userSprite.animateBoolean = false;
         }
 

@@ -1,13 +1,21 @@
 
 class Canvas
 {
-    constructor(canvasID, width, height)
+    constructor(canvasID, width, height, floor)
     {
-        this.width         = width;
-        this.height        = height;
-        this.canvasID      = canvasID;
-        this.canvasElement = null; //used once you instantiate the canvas
-        this.ctx           = null; //used once you instantiate the canvas 
+        this.width           = width;
+        this.height          = height;
+        this.canvasID        = canvasID;
+        this.canvasElement   = null; //used once you instantiate the canvas
+        this.ctx             = null; //used once you instantiate the canvas 
+        this.floor           = floor; //used for switching playerarea canvas
+        this.tileSize        = 32;
+        //for transitions 
+        //sets the timer tracker for filling in the 
+        this.transitionCount  = 0;
+        this.transitionWidth  = 32;
+        this.transitionHeight = 32;
+        this.transitionFloor  = null;
     }
     getCanvasMade()
     {
@@ -15,6 +23,47 @@ class Canvas
         this.ctx = this.canvasElement.getContext('2d');
         this.canvasElement.width = this.width;
         this.canvasElement.height = this.height;
+    }
+    //used when transitioning between floors
+    transition()
+    {
+        //get correct floor to show 
+        let backgroundImage = null;
+        switch (playerAreaCanvas.transitionFloor)
+        {
+            case "firstFloor":
+                backgroundImage = firstFloorBackground.imageElement;
+                break;
+            case "secondFloor":
+                backgroundImage = secondFloorBackground.imageElement;
+                break;           
+            case "basement":
+                backgroundImage = basementBackground.imageElement;
+                break;
+        }
+        if (this.transitionWidth > fullAreaWidth && this.transitionHeight > fullAreaHeight)
+        {
+            this.transitionWidth = 32;
+            this.transitionHeight = 32;
+            this.transitionCount = 0;
+            this.floor = this.transitionFloor;
+            this.transitionFloor = null;
+        }
+        else
+        {
+            //every ten counts increase the width
+            if (this.transitionCount > 1)
+            {
+                this.transitionWidth = this.transitionWidth + 32;
+                this.transitionHeight = this.transitionHeight + 16;
+                this.transitionCount = 0;
+            } 
+            this.ctx.fillStyle = "rgba(0,0,0,0.7)"
+            this.ctx.drawImage(backgroundImage, 0, 0, this.transitionWidth, this.transitionHeight, 0, 0, this.transitionWidth, this.transitionHeight);
+            this.ctx.fillRect(0,0,this.transitionWidth,this.transitionHeight);
+            this.transitionCount++
+        }
+
     }
 }
 class ImageClass 
@@ -28,6 +77,7 @@ class ImageClass
         this.height        = height;
         this.width         = width;
         this.imageElement  = null;
+        this.tileSize      = 32; //cahnge if tile size cahnges 
     }
     // Purpose: creates a new image element and appliesit to the canvas
     createImageElement()
@@ -189,6 +239,7 @@ class MoveableImage extends ImageClass
         //used for displaying the correct movement options
         this.byDoor                    = false;
         this.byFurniture               = false;
+        this.byStair                   = false;
         //gives the object name you are by for interacting purposes 
         this.Furnitureby               = null;
         //turns off collision door detection when going through
@@ -197,6 +248,11 @@ class MoveableImage extends ImageClass
         this.insideWall                = null;
     }
     //Purpose: Move through the sprite sheet of your character to animate movement correctly
+    //         Variable information: 1.animateBoolean is periodically turned off in timeouts to prevent the infinite loop animations from going wild
+    //                               or when an NPC pauses
+    //                               2.makeMeScared is defined for an NPC when they encounter a player
+    //                               3. The frames drawn counter slows down the sprite sheet progression rate, so 15 refreshes before it goes to the next 
+    //                                        
     animate()
     {
         if (this.animateBoolean)
@@ -208,72 +264,82 @@ class MoveableImage extends ImageClass
         else
         {
             //this is the default standing still, facing the player frame
-            this.srcY = 10 * this.height;
+            this.srcY = 10 * this.height; //tenth row is the facing down
             this.currentFrame = 0;
         }
         //used specifically for npc sprites to get them stuck in the 4th sprite row of "hurt" for the set timeout
-        if (this.srcX = "makeMeScared")
-        {
-            this.srcX = 4 * this.width;
-        }
-    
+        // you can see by looking at when this.currentPathTrack == "scared" there will be a boolean that will time this out appropriately
+        //if (this.srcX = "makeMeScared")
+        //{
+        //    this.srcX = 4 * this.width; // pauses them as cowering down
+        //}
             //image, srcX, srcY, srcWidth, srcHeight, destX, destY, destWidth, destHeight
             playerAreaCanvas.ctx.drawImage(this.imageElement, this.srcX, this.srcY, this.width, this.height, this.xCoord, this.yCoord, this.width, this.height);
             this.framesDrawn++;
+            //Note: I left this here but this explains the actual collision detection, turn this one to see where you are actually looking for collisions
+            //playerAreaCanvas.ctx.fillRect((this.xCoord + 16), (this.yCoord +10), 30, 58);
             if(this.framesDrawn >= 10)
             {
                 this.currentFrame++;
                 this.framesDrawn = 0;
             }
-
+    }
+    //Purpose: height and width are for sprite sheet selection and because of the nature of the canvas drawing, 
+    //         the hitbox will not be accurate if you use collision detection doing the actual Xcoord, ycoord, width and height
+    //         therefore we are making a function that fixes these coordinates and returns the proper ones
+    // Returns: Object of hitbox dimensions
+    //NOTE: this is specific to the LPC universal character sprite generator which is in the attributes for all future sprites
+    getProperHitboxDimensions()
+    {
+        let properDimensions = 
+        {
+            "xCoord" : this.xCoord + 16,
+            "yCoord" : this.yCoord + 10,
+            "height" : 58,
+            "width"  : 30
+        }
+        return properDimensions;
     }
     //Purpose: As the player moves, keep track of their previous location for the purpose of collision detection
+    //         As in, if a collision happens, push them back to the coords before collision, and this is continously called in the requestAnimationFrame
     getPreviousXandY()
     {
         this.previousXCoord = this.xCoord;
+        //you dont update when using the door because the collision detection will push you back and its hard to time that correctly
         this.previousYCoord = this.yCoord;
     }
-    //Purpose: Move through paintings
-    //Notes: called on q click event only if this.byDoor = true
-    async moveThroughPainting()
+    //Purpose: Move through paintings on a q click
+    //         
+    //TODO there are bugs here in the entirety of this functionality 
+    moveThroughPainting()
     {
+        //you can use direction to determine which way they are facing wrt the painting. There are never left or right facing paintings
+        // but they can still press q if they are facing left or right because of the collision detection
+        // TODO maybe prevent that dialogue firing if they are facing left or right?
         let direction = previousWalkingDirection;
+        //set this, which is then changed as a timeout in a different function. this is done to turn off collision detection as your player walks through
         this.usingDoor = true;
         moveThroughPaintingSoundElement.play();
-        setTimeout(() => {
         switch (direction)
             {
-                case 'left' :
-                    this.xCoord =  this.xCoord - 100; //2 tiles with a bit of wiggle room 
-                case'right':
-                    this.xCoord =  this.xCoord + 100; //2 tiles with a bit of wiggle room 
                 case 'up'   :
-                    //TODO this is hacky and something weird is happening
-                    if (this.xCoord < 400)
-                    {
-                        this.yCoord = 170;
-                    }
-                    else
-                    {
-                        this.yCoord =-25; // this one is very weird. i dont know what its doing. I want this.yCoord - 120 but it doesnt work
-                    }
+                    this.yCoord = this.yCoord - 100;
+                    break;
                 case 'down' :   
-                    this.yCoord = this.yCoord + 120; //2 tiles with a bit of wiggle room 
+                    this.yCoord = this.yCoord + 120; 
+                    break;
             }
-        }, 0);
-
-
-
-
     }
 
 }
 class NonPlayableCharacter extends MoveableImage
 {
-    constructor (src,xCoord,yCoord,srcX,srcY,height,width,canvasID,currentPathName,currentPathTrack)
+    constructor (src,xCoord,yCoord,srcX,srcY,height,width,canvasID,currentPathName,currentPathTrack,floor)
     {
         super (src,xCoord,yCoord,srcX,srcY,height,width,canvasID);
         this.speed = 1;
+        //firstFloor,basement,secondFloor
+        this.floor = floor;
         //used for spritesheet selection
         this.srcX                      = srcX;
         this.srcY                      = srcY;
@@ -581,7 +647,7 @@ class Background extends ImageClass
         this.mapArrayObject  = mapArrayObject;
         this.yCoord          = 0;
         this.xCoord          = 0;
-        this.tileSize        = tileSize;
+        this.tileSize        = 32;
         this.gridRows        = 15;
         this.gridCols        = 30;
         this.floor           = floor;
@@ -589,32 +655,15 @@ class Background extends ImageClass
     addmap()
     {
         playerAreaCanvas.ctx.drawImage(this.imageElement, 0, 0);
-        this.addCollisionDetection(this.mapArrayObject.collisionArray);
-        this.addDoorDetection(this.mapArrayObject.doorArray);
-    }
-    // Purpose: never actually used because I cant figure out the callback, but the idea
-    //          was for mapping to set up the tile map to canvas map looping
-    mapLooper(array, functionDoingTheThing)
-    {
-        for (var eachRow = 0; eachRow < this.gridRows; eachRow++ )
-        {
-            for (var eachCol = 0; eachCol < this.gridCols; eachCol++ )
-            {
-                let arrayIndex = eachRow *this.gridCols  + eachCol; 
-                //loops through each element in array, checks if 1 or 0
-                if(array[arrayIndex] == 1)
-                {
-                    functionDoingTheThing();
-                }
-            }
-        }   
+        this.addCollisionDetection();
+        this.addDoorDetection();
+        this.addStairDetection();
     }
     //Purpose: detects when a player runs into a wall and prevents them from moving by 
     //         resetting
-    //Argument: this.mapArrayObject.collisionArray
-    addCollisionDetection(array)
+    addCollisionDetection()
     {
-
+        let array = this.mapArrayObject.collisionArray;
         for (var eachRow = 0; eachRow < this.gridRows; eachRow++ )
         {
             for (var eachCol = 0; eachCol < this.gridCols; eachCol++ )
@@ -623,16 +672,20 @@ class Background extends ImageClass
                 //loops through each element in array, checks if 1 or 0
                 if(array[arrayIndex] == 1)
                 {
+                    //For visualizing during debugging
+                    playerAreaCanvas.ctx.fillStyle = "red";
+                    playerAreaCanvas.ctx.fillRect(this.tileSize * eachCol, this.tileSize * eachRow,32,32)
                     let wall = new Wall(this.tileSize * eachCol, this.tileSize * eachRow);
-                    wall.isCollision(wall,userSprite); 
+                    wall.isCollision(wall, userSprite); 
                 }
             }
         }   
     }
     //Purpose: add a black filter with opacity to the inside of walls to give a darkened effect
     // Argument: this.mapArrayObject.insidewalls
-    darkenBehindTheWalls(array)
+    darkenBehindTheWalls()
     {
+        let array = this.mapArrayObject.insideWallArray;
         let count = 0;
         for (var eachRow = 0; eachRow < this.gridRows; eachRow++ )
         {
@@ -677,7 +730,30 @@ class Background extends ImageClass
     }
     // Purpose: take the locations of the doors and add collision detection plus
     //          the subsequent option to press q to move through
-    addDoorDetection(array)
+    addDoorDetection()
+    {
+        let count = 0;
+        for (var eachRow = 0; eachRow < this.gridRows; eachRow++ )
+        {
+            for (var eachCol = 0; eachCol < this.gridCols; eachCol++ )
+            {
+                let arrayIndex = eachRow *this.gridCols  + eachCol; 
+                //loops through each element in array, checks if 1 or 0
+                if(this.mapArrayObject.doorArray[arrayIndex] == 1)
+                {
+                    //create a door element
+                    //for visualizing during debugging
+                    //playerAreaCanvas.ctx.fillRect(this.tileSize * eachCol, this.tileSize * eachRow, 32,32)
+                    let door = new Door(this.tileSize * eachCol, this.tileSize * eachRow);
+                    door.isDoorCollision(door, userSprite); 
+                }
+
+            }
+        }
+    }
+    //Purpose: take the locations of the stairs and add collision detection plus
+    //         the option to press q to move to the next floor
+    addStairDetection()
     {
         for (var eachRow = 0; eachRow < this.gridRows; eachRow++ )
         {
@@ -685,16 +761,28 @@ class Background extends ImageClass
             {
                 let arrayIndex = eachRow *this.gridCols  + eachCol; 
                 //loops through each element in array, checks if 1 or 0
-                if(array[arrayIndex] == 1)
+                if(this.mapArrayObject.stairArray[arrayIndex] == 1)
                 {
+                    let direction = "upstairs"
                     //create a door element
-                    let door = new Door(this.tileSize * eachCol, this.tileSize * eachRow);
-                    door.isDoorCollision(door,userSprite); 
+                    //playerAreaCanvas.ctx.fillStyle = "red";
+                    //playerAreaCanvas.ctx.fillRect(this.tileSize * eachCol, this.tileSize * eachRow,32,32)
+                    let stair = new Stair(this.tileSize * eachCol, this.tileSize * eachRow, direction);
+                    stair.isStairCollision(stair, userSprite); 
                 }
-
+                else if (this.mapArrayObject.stairArray[arrayIndex] == 2)
+                {
+                    let direction = "downstairs"
+                    //create a door element
+                    //playerAreaCanvas.ctx.fillStyle = "red";
+                    //playerAreaCanvas.ctx.fillRect(this.tileSize * eachCol, this.tileSize * eachRow,32,32)
+                    let stair = new Stair(this.tileSize * eachCol, this.tileSize * eachRow, direction);
+                    stair.isStairCollision(stair, userSprite); 
+                }
             }
         }
     }
+
 }
 class Wall 
 {
@@ -702,72 +790,127 @@ class Wall
     {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
-        this.height = 32;
-        this.width  = 32;
+        this.height = playerAreaCanvas.tileSize;
+        this.width  = playerAreaCanvas.tileSize;
     }
     isCollision(wall, player)
     {
+        //Note: player x,y,width,and height are for sprite selection and not completely accurate, therefore we must
+        // modify them 
+        let playerDimensions = userSprite.getProperHitboxDimensions();
         if (
-            wall.xCoord < player.xCoord + (player.width -player.heightAndWidthAllowance)  &&
-            wall.xCoord + wall.width > player.xCoord + player.heightAndWidthAllowance  &&
-            wall.yCoord < player.yCoord + (player.height) &&
-            wall.yCoord + wall.height > (player.yCoord + player.heightAndWidthAllowance)
+            wall.xCoord < playerDimensions.xCoord + playerDimensions.width  &&
+            wall.xCoord + wall.width > playerDimensions.xCoord   &&
+            wall.yCoord < playerDimensions.yCoord + playerDimensions.height &&
+            wall.yCoord + wall.height > playerDimensions.yCoord
             )
             {
                 player.xCoord = player.previousXCoord;
                 player.yCoord = player.previousYCoord;      
             } 
     }
-
 }
 class Door extends Wall
 {
-    constructor(xCoord,yCoord)
+    constructor(xCoord,yCoord,type)
     {
         super(xCoord, yCoord)
-        this.height = 32;
-        this.width  = 32;
+        //corresponds to the tile sizes used on every map
+        this.height = playerAreaCanvas.tileSize;
+        this.width  = playerAreaCanvas.tileSize;
     }
-    isDoorCollision(wall, player)
+    isDoorCollision(painting, player)
     {
-        if (!player.usingDoor)
+        //use the proper hitbox dimensions
+        let playerDimensions = player.getProperHitboxDimensions();
+        //When they are using the door, turn off collision detection so they can move through
+        //due to the nature of requestanimation it would pop you back because you cant really just await, or at least I havent figured out how
+        if (player. usingDoor == null || player.usingDoor == false)
         {
-            if (
-                wall.xCoord < player.xCoord + (player.width -player.heightAndWidthAllowance)  &&
-                wall.xCoord + wall.width > player.xCoord + player.heightAndWidthAllowance  &&
-                wall.yCoord < player.yCoord + (player.height) &&
-                wall.yCoord + wall.height > (player.yCoord + player.heightAndWidthAllowance)
-                )
+            if 
+            (
+                painting.xCoord < playerDimensions.xCoord + playerDimensions.width  &&
+                painting.xCoord + painting.width > playerDimensions.xCoord   &&
+                painting.yCoord < playerDimensions.yCoord + playerDimensions.height &&
+                painting.yCoord + painting.height > playerDimensions.yCoord
+            )
                 {
-                    player.placeholderCoordx = player.xCoord;
-                    player.placeholderCoordy = player.yCoord;
-                    player.xCoord = player.previousXCoord;
-                    player.yCoord = player.previousYCoord;     
-                    //write in the correct Text
-                    //now you need to register those previous coords as options where you 
-                    //can pass through and the text content changes 
-                    //check that its not a repeat 
-                    TextCanvas.hasbeenRewritten = true;
-                    TextCanvas.rewriteText('byDoor');
-                    player.byDoor = true;   
+                    if (
+                            (userSprite.xCoord > 710 && userSprite.xCoord < 790 && userSprite.yCoord > 190 && userSprite.yCoord < 240)
+                            || (userSprite.xcord > 20 && userSprite.xCoord <150 && userSprite.yCoord > 100 && userSprite.yCoord < 250)
+                        )
+
+                    {
+                        console.log('this is a location of a weird bug that is temporarily fixed')
+                    }
+                    else
+                    {
+                        //purpose of the placeholder: to update the rewrite text correctly, you need it to be one extra step out before you rewrite
+                        //since you only ever use with hitbox detection, make it the modified ones 
+                        player.placeholderCoordx = playerDimensions.xCoord;
+                        player.placeholderCoordy = playerDimensions.yCoord;
+                        //perform hitbox collisions
+
+                        //Note: this action is what was causing the bug on going up, now you redefine in the move through painting
+                        player.xCoord = player.previousXCoord;
+                        player.yCoord = player.previousYCoord;     
+                        //write in the correct Text
+                        //now you need to register those previous coords as options where you 
+                        //can pass through and the text content changes 
+                        //check that its not a repeat 
+                        //doing this twice so it doesnt look weird if the user is spamming walking into it 
+                        TextCanvas.hasbeenRewritten = true;
+                        TextCanvas.rewriteText('byDoor');
+                        //allows q to fire
+                        player.byDoor = true;   
+
+                    }
                 }
-            else if (
+            else if 
+            (
                 player.yCoord == player.previousYCoord && player.xCoord == player.previousXCoord &&
-                wall.xCoord < player.placeholderCoordx + (player.width -player.heightAndWidthAllowance)  &&
-                wall.xCoord + wall.width > player.placeholderCoordx + player.heightAndWidthAllowance  &&
-                wall.yCoord < player.placeholderCoordy + (player.height) &&
-                wall.yCoord + wall.height > (player.placeholderCoordy + player.heightAndWidthAllowance)
-                )
-            {
-                TextCanvas.hasbeenRewritten = true;
-                TextCanvas.rewriteText('byDoor');
-                player.byDoor = true;   
-            }
-            else if((player.byDoor && player.yCoord !== player.previousYCoord) || (player.byDoor && player.xCoord !== player.previousXCoord))
+                painting.xCoord < player.placeholderCoordx + (playerDimensions.width)  &&
+                painting.xCoord + painting.width > player.placeholderCoordx   &&
+                painting.yCoord < player.placeholderCoordy + (playerDimensions.height) &&
+                painting.yCoord + painting.height > (player.placeholderCoordy)
+            )
+                {
+                    //TODO this fires in weird places
+                    //Note for now Im just going to forbid it firing in the weird places bc I cant figure out the bug in time
+                    if (userSprite.xCoord == 721 && userSprite.yCoord == 211)
+                    (
+                        console.log('this is a location of a weird bug that is temporarily fixed')
+                    )
+                    else
+                    {
+                        //Essentially what youre doing is once the collision detection pushes you back, you still give yourself the 
+                        // option to use the door, as given by the boolean player.byDoor
+                        //rewrite again just in case
+                        console.log(userSprite.xCoord,userSprite.yCoord)
+                        TextCanvas.hasbeenRewritten = true;
+                        TextCanvas.rewriteText('byDoor');
+    
+                        player.byDoor = true;   
+                    }
+
+
+
+                }
+            //Idea here: once you move actively, you want the text options to trigger off and the option to press q to turn off
+            // and to reset the placeholder for previous actions 
+            //Note: based on this I think the move through has to move through then do another movement action immediately to not update you back to your initial condition which I have seen
+            else if
+            (
+                (player.byDoor && player.yCoord !== player.previousYCoord) 
+                || 
+                (player.byDoor && player.xCoord !== player.previousXCoord)
+            )
             {
                 player.byDoor = false; 
                 player.placeholderCoordx = null;
                 player.placeholderCoordy = null;
+
+
                 if (TextCanvas.hasbeenRewritten)
                 {
                     TextCanvas.rewriteText('returnToText');
@@ -777,6 +920,131 @@ class Door extends Wall
     }
 }
 }
+class Stair extends Wall
+{
+    constructor(xCoord,yCoord,type)
+    {
+        super(xCoord, yCoord)
+        //corresponds to the tile sizes used on every map
+        this.height = playerAreaCanvas.tileSize;
+        this.width  = playerAreaCanvas.tileSize;
+        //tells you whetehr they are going upstairs or downstairs
+        this.type   = type;
+    }
+    isStairCollision(stair, player)
+    {
+        //use the proper hitbox dimensions
+        let playerDimensions = player.getProperHitboxDimensions();
+        if 
+            (
+                stair.xCoord < playerDimensions.xCoord + playerDimensions.width  &&
+                stair.xCoord + stair.width > playerDimensions.xCoord   &&
+                stair.yCoord < playerDimensions.yCoord + playerDimensions.height &&
+                stair.yCoord + stair.height > playerDimensions.yCoord
+            )
+                {
+                    //purpose of the placeholder: to update the rewrite text correctly, you need it to be one extra step out before you rewrite
+                    //since you only ever use with hitbox detection, make it the modified ones 
+                    player.placeholderCoordx = playerDimensions.xCoord;
+                    player.placeholderCoordy = playerDimensions.yCoord;
+                    //perform hitbox collisions
+                    player.xCoord = player.previousXCoord;
+                    player.yCoord = player.previousYCoord;     
+                    //write in the correct Text
+                    //now you need to register those previous coords as options where you 
+                    //can pass through and the text content changes 
+                    //check that its not a repeat 
+                    TextCanvas.hasbeenRewritten = true;
+                    TextCanvas.rewriteText('byStair');
+                    player.byStair = true;
+                    //get the correct floor it would go to 
+                    if (stair.type == "upstairs")
+                    {
+                        if (playerAreaCanvas.floor == "firstFloor")
+                        {
+                            playerAreaCanvas.transitionFloor = "secondFloor"
+                        }
+                        else if (playerAreaCanvas.floor == "basement")
+                        {
+                            playerAreaCanvas.transitionFloor = "firstFloor"
+                        }
+                    }
+                    else if (stair.type == "downstairs")
+                    {
+                        if (playerAreaCanvas.floor == "firstFloor")
+                        {
+                            playerAreaCanvas.transitionFloor = "basement"
+                        }
+                        else if (playerAreaCanvas.floor == "secondFloor")
+                        {
+                            playerAreaCanvas.transitionFloor = "firstFloor"
+                        }
+                    }
+                }
+            else if 
+            (
+                player.yCoord == player.previousYCoord && player.xCoord == player.previousXCoord &&
+                stair.xCoord < player.placeholderCoordx + (playerDimensions.width)  &&
+                stair.xCoord + stair.width > player.placeholderCoordx   &&
+                stair.yCoord < player.placeholderCoordy + (playerDimensions.height) &&
+                stair.yCoord + stair.height > (player.placeholderCoordy)
+            )
+                {
+                    //Essentially what youre doing is once the collision detection pushes you back, you still give yourself the 
+                    // option to use the door, as given by the boolean player.byDoor
+                    //rewrite again just in case
+                    TextCanvas.hasbeenRewritten = true;
+                    TextCanvas.rewriteText('byStair'); 
+                    player.byStair = true
+                    //get the correct floor it would go to for the transitionfloor, which will be
+                    //fired after transition completes
+                    if (stair.type == "upstairs")
+                    {
+                        if (playerAreaCanvas.floor == "firstFloor")
+                        {
+                            playerAreaCanvas.transitionFloor = "secondFloor"
+                        }
+                        else if (playerAreaCanvas.floor == "basement")
+                        {
+                            playerAreaCanvas.transitionFloor = "firstFloor"
+                        }
+                    }
+                    else if (stair.type == "downstairs")
+                    {
+                        if (playerAreaCanvas.floor == "firstFloor")
+                        {
+                            playerAreaCanvas.transitionFloor = "basement"
+                        }
+                        else if (playerAreaCanvas.floor == "secondFloor")
+                        {
+                            playerAreaCanvas.transitionFloor = "firstFloor"
+                        }
+                    }
+                }
+            //Idea here: once you move actively, you want the text options to trigger off and the option to press q to turn off
+            // and to reset the placeholder for previous actions 
+            //Note: based on this I think the move through has to move through then do another movement action immediately to not update you back to your initial condition which I have seen
+            else if
+            (
+                (player.byStair && player.yCoord !== player.previousYCoord) 
+                || 
+                (player.byStair && player.xCoord !== player.previousXCoord)
+            )
+            {
+                player.placeholderCoordx = null;
+                player.placeholderCoordy = null;
+                player.byStair = false;
+                if (TextCanvas.hasbeenRewritten)
+                {
+                    TextCanvas.rewriteText('returnToText');
+                    TextCanvas.hasbeenRewritten = false;
+                }
+                //reset floors 
+                playerAreaCanvas.transitionFloor = null;
+            }
+    }
+}
+
 
 
 //Used in creating the canvases
@@ -785,7 +1053,7 @@ const fullAreaHeight = 480;
 const widthAddition = 352;
 const heightAddition = 100;
 
-const playerAreaCanvas = new Canvas ("playerArea", fullAreaWidth, fullAreaHeight);
+const playerAreaCanvas = new Canvas ("playerArea", fullAreaWidth, fullAreaHeight, "firstFloor");
 playerAreaCanvas.getCanvasMade();
 
 //Add in the image of the user Sprite
@@ -793,8 +1061,15 @@ const userSprite = new MoveableImage("assets/spriteSheets/playerspritesheet.png"
 userSprite.createImageElement();
 
 //Add in the images of the NPC sprites
-const ladyNPCSprite = new NonPlayableCharacter("assets/spriteSheets/ladySpriteSheet.png",721,211,0,0,64,64,"playerArea","pathOne", "down");
+const ladyNPCSprite = new NonPlayableCharacter("assets/spriteSheets/ladySpriteSheet.png",721,211,0,0,64,64,"playerArea","pathOne", "down", "firstFloor");
 ladyNPCSprite.createImageElement();
+
+const manNPCSprite = new NonPlayableCharacter("assets/spriteSheets/manSpriteSheet.png",721,211,0,0,64,64,"playerArea","pathOne", "down", "secondFloor"); 
+manNPCSprite.createImageElement();
+
+const childNPCSprite = new NonPlayableCharacter("assets/spriteSheets/childSpriteSheet.png",721,211,0,0,64,64,"playerArea","pathOne", "down", "basement");
+childNPCSprite.createImageElement();
+
 
 //Add in the dialogue popups for the NPC 
 const startledDialog = new ImageClass ("assets/spriteSheets/scaredNPC.png",null, null, 32,32,"playerArea");
@@ -802,8 +1077,13 @@ startledDialog.createImageElement();
 const warningDialog = new ImageClass ("assets/spriteSheets/warningNPC.png",null, null, 32,32,"playerArea");
 warningDialog.createImageElement();
 //Add in the backgrounds for each floor
+
 const firstFloorBackground = new Background("assets/firstFloor/firstfloor.png",1000, 600, "playerArea",firstFloorMaps, 32);
 firstFloorBackground.createImageElement();
+const basementBackground = new Background("assets/basement/basement.png",1000, 600, "playerArea",basementMaps, 32);
+basementBackground.createImageElement();
+const secondFloorBackground = new Background("assets/secondFloor/secondFloor.png",1000, 600, "playerArea",secondFloorMaps, 32);
+secondFloorBackground.createImageElement();
 
 //Add in all the interactable items 
 //First Floor
@@ -819,14 +1099,10 @@ bookshelfLeft.createImageElement();
 const bookshelfRight = new InteractableItem('assets/firstFloor/Items/bookshelf.png', 75, 140, 32*2,32*2, false,false, false)
 bookshelfRight.createImageElement();
 
-const chairLeftUp = new InteractableItem('assets/firstFloor/Items/chairleft.png', 170, 270, 32*2,32, true,false,false)
-chairLeftUp.createImageElement();
-const chairLeftDown = new InteractableItem('assets/firstFloor/Items/chairleft.png', 170, 320, 32*2,32, true,false,false)
-chairLeftDown.createImageElement();
-const chairRightUp= new InteractableItem('assets/firstFloor/Items/chairRight.png', 280, 270, 32*2,32, true,false,false)
-chairRightUp.createImageElement();
-const chairRightDown= new InteractableItem('assets/firstFloor/Items/chairRight.png', 280, 320, 32*2,32, true,false,false)
+const chairRightDown = new InteractableItem('assets/firstFloor/Items/chairleft.png', 170, 270, 32*2,32, true,false,false)
 chairRightDown.createImageElement();
+const chairRightUp= new InteractableItem('assets/firstFloor/Items/chairleft.png', 170, 320, 32*2,32, true,false,false)
+chairRightUp.createImageElement();
 
 const dresserLeft  = new InteractableItem('assets/firstFloor/Items/dresser.png', 155, 90, 32,32*2, true,true,false, ["candy"]);
 dresserLeft.createImageElement();
@@ -848,49 +1124,90 @@ function updatePlayerArea()
     //clear the screen
     playerAreaCanvas.ctx.clearRect(0,0,playerAreaCanvas.width, playerAreaCanvas.height); // So the contents of the previous frame can be cleared
     //add in the background
-    firstFloorBackground.addmap();
-    //add furniture
-    vanity.drawFurniture();
-    vanity.isClose(userSprite);
-    bookshelfLeft.drawFurniture();
-    bookshelfRight.drawFurniture();
-    chairLeftDown.drawFurniture();
-    chairLeftDown.isClose(userSprite);
-    chairLeftUp.drawFurniture();
-    chairLeftUp.isClose(userSprite);    
-    chairRightDown.drawFurniture();
-    chairRightDown.isClose(userSprite);
-    chairRightUp.drawFurniture(); 
-    chairRightUp.isClose(userSprite);
-    dresserLeft.drawFurniture();
-    dresserLeft.isClose(userSprite);
-    dresserRight.drawFurniture();
-    dresserRight.isClose(userSprite);
-    stove.drawFurniture();
-    stove.isClose(userSprite);
-    fridge.drawFurniture();
-    fridge.isClose(userSprite);
-    toilet.drawFurniture();
-    toilet.isClose(userSprite);
-    // add in items
-    book.drawFurniture();
-    book.isClose(userSprite);
-   
+    //Switch the floor accordingly 
+    switch(playerAreaCanvas.floor)
+    {
+        case 'firstFloor':
+            firstFloorBackground.addmap();
+            //add furniture
+            vanity.drawFurniture();
+            vanity.isClose(userSprite);
+            bookshelfLeft.drawFurniture();
+            bookshelfRight.drawFurniture();
+            chairRightDown.drawFurniture();
+            chairRightDown.isClose(userSprite);    
+            chairRightUp.drawFurniture(); 
+            chairRightUp.isClose(userSprite);
+            dresserLeft.drawFurniture();
+            dresserLeft.isClose(userSprite);
+            dresserRight.drawFurniture();
+            dresserRight.isClose(userSprite);
+            stove.drawFurniture();
+            stove.isClose(userSprite);
+            fridge.drawFurniture();
+            fridge.isClose(userSprite);
+            toilet.drawFurniture();
+            toilet.isClose(userSprite);
+            // add in items
+            book.drawFurniture();
+            book.isClose(userSprite);
+           
+        
+            //add in NPCs
+            //ladyNPCSprite.animate();
+            //ladyNPCSprite.path();
+            //ladyNPCSprite.detectPlayerNearby();
+            //add in the user
+            if (userSprite.hasCandle)
+            {
+                firstFloorBackground.darkenBehindTheWalls();
+            }
+            userSprite.animate();
+            //darken behind the walls
+            if (!userSprite.hasCandle)
+            {
+                firstFloorBackground.darkenBehindTheWalls();
+            }
+            break;
+        case 'basement':
+            basementBackground.addmap();
+            //add in NPCs
+            //childNPCSprite.animate();
+            //childNPCSprite.path();
+            //childNPCSprite.detectPlayerNearby();
+            if (userSprite.hasCandle)
+            {
+                basementBackground.darkenBehindTheWalls();
+            }
+            userSprite.animate();
+            //darken behind the walls
+            if (!userSprite.hasCandle)
+            {
+                basementBackground.darkenBehindTheWalls();
+            }
 
-    //add in NPCs
-    ladyNPCSprite.animate();
-    ladyNPCSprite.path();
-    ladyNPCSprite.detectPlayerNearby();
-    //add in the user
-    if (userSprite.hasCandle)
-    {
-        firstFloorBackground.darkenBehindTheWalls(firstFloorBackground.mapArrayObject.insideWallArray);
-    }
-    userSprite.animate();
-    //darken behind the walls
-    if (!userSprite.hasCandle)
-    {
-        firstFloorBackground.darkenBehindTheWalls(firstFloorBackground.mapArrayObject.insideWallArray);
+            break;
+        case 'secondFloor':
+            secondFloorBackground.addmap();
+            //add in NPCs
+            //manNPCSprite.animate();
+            //manNPCSprite.path();
+            //manNPCSprite.detectPlayerNearby();
+            if (userSprite.hasCandle)
+            {
+                secondFloorBackground.darkenBehindTheWalls();
+            }
+            userSprite.animate();
+            //darken behind the walls
+            if (!userSprite.hasCandle)
+            {
+                secondFloorBackground.darkenBehindTheWalls();
+            }
+            break;
+        case "transition" :
+            playerAreaCanvas.transition();
+            break;
+
     }
     requestAnimationFrame(updatePlayerArea); //The function will be called repeatedly on each new framed
 }

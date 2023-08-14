@@ -19,7 +19,7 @@ const allHints =
     'starting'            : "I bet one of these dressers has a candle in it...",
     'bookQuest'           : "the inside of the wall with the brick showing is interactable and the book is there.",
     'chairQuest'          : " I should try dragging two of the chairs directly above me at least 3 tiles away.",
-    'whisperQuest'        : ["Quest 4 complete!", "Chapter 2: General Ghosts..", "According to this, ghosts sometimes try to communicate with the living", "I should whisper from behind the painting when someone walks by."],
+    'whisperQuest'        : "",
     'breakerBoxQuest'     : "",
     'scaryNoteQuest'      : "",
     'sleepingQuest'       : "",
@@ -31,7 +31,7 @@ const allHints =
 const allPlayerOptions =
 {
     'byDoor'                : "Press q to move through the painting",
-    'byStairs'              : 'Press q to go to the other floor',
+    'byStair'              : 'Press q to go to the other floor',
     'openingFurniture'      : "Press e to rummage through furniture",
     'pickingUpItem'         : "Press e to pickup item"
 }
@@ -176,6 +176,22 @@ class ClickableCanvas extends Canvas
             this.ctx.fillText(this.currentText, 65, 90);
             this.counter++;
         }
+        else if(tempDirection == "byStair")
+        {
+            //first keep track of previous text 
+            if (this.counter == 0)
+            {
+                this.previousText = this.currentText; 
+            }
+            //dont draw a button
+            this.currentText = allPlayerOptions.byStair;
+            this.ctx.clearRect(0,0,this.width,this.height);
+            textBackground.drawImage();
+            this.ctx.font = "bold 20px Courier New";
+            this.ctx.fillStyle = "black";
+            this.ctx.fillText(this.currentText, 65, 90);
+            this.counter++;
+        }
         else if (tempDirection == "pickingUpItem")
         {
             if (this.counter == 0)
@@ -189,7 +205,6 @@ class ClickableCanvas extends Canvas
             this.ctx.fillStyle = "black";
             this.ctx.fillText(this.currentText, 65, 90);
             this.counter++;
-
         }
         else if (tempDirection == "openingFurniture")
         {
