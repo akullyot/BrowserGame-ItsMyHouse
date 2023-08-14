@@ -123,7 +123,7 @@ document.addEventListener("keydown", async function (e){
 
     }
     //Used for rummaging a drawer or picking up an item
-    else if (e.key = "e")
+    else if (e.key == "e")
     {
         
        if (userSprite.byFurniture)
@@ -138,6 +138,60 @@ document.addEventListener("keydown", async function (e){
             }
        }
 
+    }
+    else if (e.key == "r" )
+    {
+        if (userSprite.byFurniture && userSprite.Furnitureby.isDraggable || userSprite.furnitureHolding !== null)
+        {
+            if (userSprite.Furnitureby == null)
+            {
+                if (userSprite.furnitureHolding.dragCount % 2 !== 0 )
+                {
+                    userSprite.furnitureHolding.endingX = userSprite.xCoord -20;
+                    userSprite.furnitureHolding.endingY = userSprite.yCoord +5;
+                    userSprite.furnitureHolding.xCoord = userSprite.xCoord -20;
+                    userSprite.furnitureHolding.yCoord = userSprite.yCoord +5;
+                    userSprite.furnitureHolding.dragCount++;
+                    userSprite.furnitureHolding.isBeingDragged = false;
+                    userSprite.furnitureHolding.checkIfDraggedFurnitureFarAway();
+                    userSprite.furnitureHolding = null;
+                    
+
+                }
+            }
+            else 
+            {
+                if ( userSprite.Furnitureby.dragCount == 0 )
+                {
+                    userSprite.Furnitureby.isBeingDragged = true;
+                    userSprite.Furnitureby.startingX = userSprite.Furnitureby.xCoord;
+                    userSprite.Furnitureby.startingY = userSprite.Furnitureby.yCoord;
+                    userSprite.Furnitureby.dragCount++;
+                    //need to pass in the furnitureby because it could theoretically change if you get close to another
+                    userSprite.furnitureHolding = userSprite.Furnitureby;
+                }
+                //check if even or odd now, if its odd youre dropping, if its even youre picking up 
+                //done this way because I only want to change the starting x at the 0th time 
+                else if (userSprite.Furnitureby.dragCount % 2 == 0 )
+                {
+                    userSprite.Furnitureby.isBeingDragged = true;
+                    userSprite.Furnitureby.dragCount++;
+                    //need to pass in the furnitureby because it could theoretically change if you get close to another
+                    userSprite.furnitureHolding = userSprite.Furnitureby;
+                }
+                else if (userSprite.Furnitureby.dragCount % 2 !== 0 )
+                {
+                    userSprite.furnitureHolding.endingX = userSprite.xCoord;
+                    userSprite.furnitureHolding.endingY = userSprite.yCoord ;
+                    userSprite.furnitureHolding.dragCount++;
+                    userSprite.furnitureHolding.isBeingDragged = false;
+                    userSprite.furnitureHolding = null;
+                }
+
+            }
+
+
+        }
     }
     else
     {

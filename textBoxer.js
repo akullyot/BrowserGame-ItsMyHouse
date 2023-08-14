@@ -1,8 +1,8 @@
 //writing text onto the canvas
 const allTexts = 
 {
-    'starting'            : ["I've been living in these walls for months now. I want my house back.", "If I convince the current residents that this house is haunted ..", "I'll finally have my house back.", "But... How do I do it? ", "Behind the paintings are holes I made to move in and out of the walls.", "I just can't let them know I'm here.", "There's a book of paranormal encounters I found on the other side of the wall.", "I should go there and find it.", "First, it's pretty dark. I should try to steal a candle..."],
-    'bookQuest'           : ["Quest 1 complete!", "Great. Now I can see.", "I should enter in the wall south of the dining table and find that book."],
+    'starting'            : ["I've been living in these walls for months now. I want my house back.", "If I convince the current residents that this house is haunted ..", "I'll finally have my house back.", "But... How do I do it? ", "Behind the paintings are holes I made to move in and out of the walls.", "I just can't let them know I'm here.", "First, it's pretty dark. I should try to steal a candle..."],
+    'bookQuest'           : ["Quest 1 complete!", "Great. Now I can see.", "There's a book of paranormal encounters I found on the other side of the wall.", "I should enter in the wall south of the dining table and find that book."],
     'chairQuest'          : ["Quest 2 complete!","Lets look through this book...", "The progress bar in my inventory shows how far I've gotten in the book","I have 10 more quests to complete.",  "Im sure if I complete this book the family will finally leave.", "*starts reading*", "Chapter 1: Poltergeists", "So... poltergeists unexplainably move items.", "I should try with some chairs."],
     'turnOnRadioQuest'    : ["Quest 3 complete!", "Chapter 1 also says that poltergeists can manipulate electricity.", "If I turn on the radio upstairs without them catching me", "I'm sure that will scare them."],
     'whisperQuest'        : ["Quest 4 complete!", "Chapter 2: General Ghosts..", "According to this, ghosts sometimes try to communicate with the living", "I should whisper from behind the painting when someone walks by."],
@@ -31,9 +31,10 @@ const allHints =
 const allPlayerOptions =
 {
     'byDoor'                : "Press q to move through the painting",
-    'byStair'              : 'Press q to go to the other floor',
+    'byStair'               : 'Press q to go to the other floor',
     'openingFurniture'      : "Press e to rummage through furniture",
-    'pickingUpItem'         : "Press e to pickup item"
+    'pickingUpItem'         : "Press e to pickup item",
+    'dragItem'              : "Press r to drag item, then r to drop item"
 }
 class ClickableCanvas extends Canvas
 {
@@ -185,6 +186,20 @@ class ClickableCanvas extends Canvas
             }
             //dont draw a button
             this.currentText = allPlayerOptions.byStair;
+            this.ctx.clearRect(0,0,this.width,this.height);
+            textBackground.drawImage();
+            this.ctx.font = "bold 20px Courier New";
+            this.ctx.fillStyle = "black";
+            this.ctx.fillText(this.currentText, 65, 90);
+            this.counter++;
+        }
+        else if (tempDirection == "dragItem")
+        {
+            if (this.counter == 0)
+            {
+                this.previousText = this.currentText; 
+            }
+            this.currentText = allPlayerOptions.dragItem;
             this.ctx.clearRect(0,0,this.width,this.height);
             textBackground.drawImage();
             this.ctx.font = "bold 20px Courier New";

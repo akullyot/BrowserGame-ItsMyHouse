@@ -106,7 +106,7 @@ class ImageClass
         }
     }
 }
-//TODO change name, it also includes pickupable items
+//TODO change name, it also includes pickupable items, also ideally extend the class
 class InteractableItem extends ImageClass
 {
     constructor (src, xCoord, yCoord, height, width,isBreakable,isOpenable,isPickupItem,itemsInside)
@@ -115,7 +115,6 @@ class InteractableItem extends ImageClass
         //there are different typres of furnitures with different functionalities that are
         //turned on and off with booleans
         this.isBreakable    = isBreakable;
-        //this.isDraggable    = isdraggable;
         //these are items on the floor that you can pick up and add to inventory   
         this.isPickupItem   = isPickupItem; 
         //these are desks/drawers you can rummage through
@@ -131,12 +130,14 @@ class InteractableItem extends ImageClass
     }
     isClose(player)
     {
+        //use the proper hitbox dimensions
+        let playerDimensions = player.getProperHitboxDimensions();
 
         if (
-            this.xCoord < player.xCoord + (player.width -player.heightAndWidthAllowance)  &&
-            this.xCoord + this.width > player.xCoord + player.heightAndWidthAllowance  &&
-            this.yCoord < player.yCoord + (player.height) &&
-            this.yCoord + this.height > (player.yCoord + player.heightAndWidthAllowance)
+            this.xCoord < playerDimensions.xCoord + playerDimensions.width  &&
+            this.xCoord + this.width > playerDimensions.xCoord   &&
+            this.yCoord < playerDimensions.yCoord + playerDimensions.height &&
+            this.yCoord + this.height > playerDimensions.yCoord
             )
         {
             player.placeholderCoordx = player.xCoord;
@@ -159,11 +160,11 @@ class InteractableItem extends ImageClass
             }
         }
         else if (
-                player.yCoord == player.previousYCoord && player.xCoord == player.previousXCoord &&
-                this.xCoord < player.placeholderCoordx + (player.width -player.heightAndWidthAllowance)  &&
-                this.xCoord + this.width > player.placeholderCoordx + player.heightAndWidthAllowance  &&
-                this.yCoord < player.placeholderCoordy + (player.height) &&
-                this.yCoord + this.height > (player.placeholderCoordy + player.heightAndWidthAllowance)
+            player.yCoord == player.previousYCoord && player.xCoord == player.previousXCoord &&
+            this.xCoord < player.placeholderCoordx + (playerDimensions.width)  &&
+            this.xCoord + this.width > player.placeholderCoordx   &&
+            this.yCoord < player.placeholderCoordy + (playerDimensions.height) &&
+            this.yCoord + this.height > (player.placeholderCoordy)
                 )
         {
                 //not sure why player wasnt working
@@ -208,8 +209,135 @@ class InteractableItem extends ImageClass
     changeColorWhenPlayerClose()
     {
         //TODO change color based on what you can do with it 
-        playerAreaCanvas.ctx.fillStyle = 'rgba(245,152,39,0.2)';
-        playerAreaCanvas.ctx.fillRect(this.xCoord,this.yCoord,this.width,this.height);
+        playerAreaCanvas.ctx.fillStyle = 'rgba(245,152,39,0.5)';
+        playerAreaCanvas.ctx.fillRect(this.xCoord +5 ,this.yCoord + 5,this.width,this.height);
+    }
+}
+class DraggableItem extends InteractableItem
+{
+    constructor(src, xCoord, yCoord, height, width)
+    {
+        super(src,xCoord,yCoord,height, width)
+        //this is always true, its for keypress event recognition because other item types also use 
+        // userSprite.FurnitureBy and userSprite.byFurniture
+        this.isDraggable    = true;
+        this.isBeingDragged = false;
+        this.startingX      = null;
+        this.startingY      = null;
+        this.endingX        = null;
+        this.endingY        = null;
+        this.dragCount      = 0;
+        this.hasCompleted   = false;
+    }
+    //theres enough changes where it makes sense to rewrite is close
+    //Purpose: trigger the correct textbox and option to pickup furniture
+    isNearby(player)
+    {
+        let playerDimensions = player.getProperHitboxDimensions();
+        if (
+            this.xCoord < playerDimensions.xCoord + playerDimensions.width  &&
+            this.xCoord + this.width > playerDimensions.xCoord   &&
+            this.yCoord < playerDimensions.yCoord + playerDimensions.height &&
+            this.yCoord + this.height > playerDimensions.yCoord
+            )
+        {
+            player.placeholderCoordx = player.xCoord;
+            player.placeholderCoordy = player.yCoord;
+            player.xCoord = player.previousXCoord;
+            player.yCoord = player.previousYCoord;
+            TextCanvas.hasbeenRewritten = 'true';
+            player.byFurniture = true;
+            player.Furnitureby = this;
+            TextCanvas.rewriteText('dragItem');
+            this.changeColorWhenPlayerClose();
+
+        }
+        else if (
+                player.yCoord == player.previousYCoord && player.xCoord == player.previousXCoord &&
+                this.xCoord < player.placeholderCoordx + (playerDimensions.width)  &&
+                this.xCoord + this.width > player.placeholderCoordx   &&
+                this.yCoord < player.placeholderCoordy + (playerDimensions.height) &&
+                this.yCoord + this.height > (player.placeholderCoordy)
+                )
+        {
+            player.byFurniture = true;
+            player.Furnitureby = this;
+            this.changeColorWhenPlayerClose();
+            TextCanvas.hasbeenRewritten = true;
+            player.byFurniture = true;
+            player.Furnitureby = this;
+            TextCanvas.rewriteText('dragItem');
+
+        }
+        else if
+        (
+            (player.byFurniture && player.yCoord !== player.previousYCoord) 
+            || 
+            (player.byFurniture && player.xCoord !== player.previousXCoord)
+        )
+        {
+
+                player.byFurniture = false;
+                player.Furnitureby = null;
+                player.placeholderCoordx = null;
+                player.placeholderCoordy = null;
+                TextCanvas.rewriteText('returnToText');
+                
+        }
+    }
+    //Purpose: put the furniture in the correct 
+    drawDraggableFurniture()
+    {
+        if (this.isBeingDragged == true)
+        {
+            //draw it like 30 pixels away from the user 
+            playerAreaCanvas.ctx.drawImage(this.imageElement, (userSprite.xCoord -20 ), userSprite.yCoord);
+        }
+        else if (this.isBeingDragged == false)
+        {
+            this.drawFurniture(); 
+            this.isNearby(userSprite);
+
+        }
+        
+    }
+    //Purpose: for the sake of quest completion check if the player dragged the element far enough away 
+    checkIfDraggedFurnitureFarAway()
+    {
+        //make sure you update the x and y to where it was dropped
+        if (statsCanvas.completedDraggingQuestCount < 2)
+        {
+            let xDifference = Math.abs(this.startingX - this.endingX);
+            let yDifference = Math.abs(this.startingY - this.endingY);
+
+            if (xDifference + yDifference > 100  && this.hasCompleted == false)
+            {
+                statsCanvas.completedDraggingQuestCount++ 
+                this.hasCompleted == true
+            }
+            if (statsCanvas.completedDraggingQuestCount == 2)
+            {
+                //add one to completion
+                questCompleteSoundElement.play();
+                //update your progress bar
+                statsCanvas.progressCounter++;
+                statsCanvas.updateProgressBar();
+
+                //they have completed the test and can move on
+                TextCanvas.currentTextKey = "turnOnRadioQuest";
+                // -1 not 0 to make the rewriteText work correctly
+                TextCanvas.currentTextArrayIndex = -1;
+                TextCanvas.totalArrayIndex = allTexts[TextCanvas.currentTextKey].length;
+                //to make rewriting the text work 
+                TextCanvas.previousText = allTexts[TextCanvas.currentTextKey][0];
+    
+                button.status = "progress";
+                //setTimeout(questCompleteSoundElement.play(),1000);
+                TextCanvas.rewriteText();
+            }
+            //check if youve dragged the item far enough away
+            //if they have 
+        }
     }
 }
 class MoveableImage extends ImageClass
@@ -242,6 +370,8 @@ class MoveableImage extends ImageClass
         this.byStair                   = false;
         //gives the object name you are by for interacting purposes 
         this.Furnitureby               = null;
+        //Used in keeping track of the item you're dragging
+        this.furnitureHolding          = null;
         //turns off collision door detection when going through
         this.usingDoor                 = null;
         //turns off NPC sprite detection
@@ -330,7 +460,6 @@ class MoveableImage extends ImageClass
                     break;
             }
     }
-
 }
 class NonPlayableCharacter extends MoveableImage
 {
@@ -673,8 +802,8 @@ class Background extends ImageClass
                 if(array[arrayIndex] == 1)
                 {
                     //For visualizing during debugging
-                    playerAreaCanvas.ctx.fillStyle = "red";
-                    playerAreaCanvas.ctx.fillRect(this.tileSize * eachCol, this.tileSize * eachRow,32,32)
+                   // playerAreaCanvas.ctx.fillStyle = "red";
+                    //playerAreaCanvas.ctx.fillRect(this.tileSize * eachCol, this.tileSize * eachRow,32,32)
                     let wall = new Wall(this.tileSize * eachCol, this.tileSize * eachRow);
                     wall.isCollision(wall, userSprite); 
                 }
@@ -697,23 +826,26 @@ class Background extends ImageClass
                 {
                     let fillerxCoord = this.tileSize * eachCol;
                     let  filleryCoord = this.tileSize * eachRow;
+                    let properHitboxDimensions = userSprite.getProperHitboxDimensions()
                     //when a candle is present, do collision detection and dont fill in those as brightly 
                     //also used for usersprite.insidewall boolean
                     if
                     (
-                            fillerxCoord < userSprite.xCoord + (userSprite.width -userSprite.heightAndWidthAllowance)  &&
-                            fillerxCoord + this.tileSize > userSprite.xCoord + userSprite.heightAndWidthAllowance  &&
-                            filleryCoord < userSprite.yCoord + (userSprite.height) &&
-                            filleryCoord + this.tileSize > (userSprite.yCoord + userSprite.heightAndWidthAllowance)
+                            fillerxCoord < properHitboxDimensions.xCoord + (properHitboxDimensions.width)  &&
+                            fillerxCoord + this.tileSize > properHitboxDimensions.xCoord &&
+                            filleryCoord < properHitboxDimensions.yCoord + (properHitboxDimensions.height) &&
+                            filleryCoord + this.tileSize > (properHitboxDimensions.yCoord)
                     )
                     {
+
                         count ++;
                         userSprite.insideWall = true;
-                        if (userSprite.hasCandle)
+                        if (userSprite.hasCandle == false)
                         {
-                            playerAreaCanvas.ctx.fillStyle = 'rgba(0,0,0,0.2)';
+                            playerAreaCanvas.ctx.fillStyle = 'rgba(0,0,0,0.6)';
+                            playerAreaCanvas.ctx.fillRect(fillerxCoord, filleryCoord, this.tileSize, this.tileSize);
                         }
-                        playerAreaCanvas.ctx.fillRect(fillerxCoord, filleryCoord, (this.tileSize), this.tileSize);
+
                     }
                     else
                     {
@@ -732,7 +864,6 @@ class Background extends ImageClass
     //          the subsequent option to press q to move through
     addDoorDetection()
     {
-        let count = 0;
         for (var eachRow = 0; eachRow < this.gridRows; eachRow++ )
         {
             for (var eachCol = 0; eachCol < this.gridCols; eachCol++ )
@@ -812,7 +943,7 @@ class Wall
 }
 class Door extends Wall
 {
-    constructor(xCoord,yCoord,type)
+    constructor(xCoord,yCoord)
     {
         super(xCoord, yCoord)
         //corresponds to the tile sizes used on every map
@@ -886,7 +1017,6 @@ class Door extends Wall
                         //Essentially what youre doing is once the collision detection pushes you back, you still give yourself the 
                         // option to use the door, as given by the boolean player.byDoor
                         //rewrite again just in case
-                        console.log(userSprite.xCoord,userSprite.yCoord)
                         TextCanvas.hasbeenRewritten = true;
                         TextCanvas.rewriteText('byDoor');
     
@@ -1087,8 +1217,6 @@ secondFloorBackground.createImageElement();
 
 //Add in all the interactable items 
 //First Floor
-const vanity = new InteractableItem('assets/firstFloor/Items/vanity.png', 480, 170, 32*2,32*2, false,true, false, ['candy', 'candle'])
-vanity.createImageElement();
 const stove = new InteractableItem('assets/firstFloor/Items/stove.png', 638, 193, 32,32, true,false, false);
 stove.createImageElement();
 const fridge = new InteractableItem('assets/firstFloor/Items/fridge.png', 672, 160, 32*2,32, false ,true, false, [])
@@ -1099,14 +1227,17 @@ bookshelfLeft.createImageElement();
 const bookshelfRight = new InteractableItem('assets/firstFloor/Items/bookshelf.png', 75, 140, 32*2,32*2, false,false, false)
 bookshelfRight.createImageElement();
 
-const chairRightDown = new InteractableItem('assets/firstFloor/Items/chairleft.png', 170, 270, 32*2,32, true,false,false)
+const chairRightDown = new DraggableItem('assets/firstFloor/Items/chairleft.png', 170, 270, 20,20)
 chairRightDown.createImageElement();
-const chairRightUp= new InteractableItem('assets/firstFloor/Items/chairleft.png', 170, 320, 32*2,32, true,false,false)
+const chairRightUp= new DraggableItem('assets/firstFloor/Items/chairleft.png', 170, 320, 20,20)
 chairRightUp.createImageElement();
 
-const dresserLeft  = new InteractableItem('assets/firstFloor/Items/dresser.png', 155, 90, 32,32*2, true,true,false, ["candy"]);
+
+const vanity = new InteractableItem('assets/firstFloor/Items/vanity.png', 480, 170, 40,40, false,true, false, ['candy', 'candle'])
+vanity.createImageElement();
+const dresserLeft  = new InteractableItem('assets/firstFloor/Items/dresser.png', 155, 90, 40,40, true,true,false, ["candy"]);
 dresserLeft.createImageElement();
-const dresserRight  = new InteractableItem('assets/firstFloor/Items/dresser.png', 420, 90, 32,32*2, true,true,false, ["candy"]);
+const dresserRight  = new InteractableItem('assets/firstFloor/Items/dresser.png', 420, 90, 40,40, true,true,false, ["candy"]);
 dresserRight.createImageElement();
 
 const toilet = new InteractableItem('assets/firstFloor/Items/toilet.png', 830, 70, 32*2,32, true,false,false);
@@ -1132,16 +1263,18 @@ function updatePlayerArea()
             //add furniture
             vanity.drawFurniture();
             vanity.isClose(userSprite);
-            bookshelfLeft.drawFurniture();
-            bookshelfRight.drawFurniture();
-            chairRightDown.drawFurniture();
-            chairRightDown.isClose(userSprite);    
-            chairRightUp.drawFurniture(); 
-            chairRightUp.isClose(userSprite);
             dresserLeft.drawFurniture();
             dresserLeft.isClose(userSprite);
             dresserRight.drawFurniture();
             dresserRight.isClose(userSprite);
+
+            bookshelfLeft.drawFurniture();
+            bookshelfRight.drawFurniture();
+            
+            chairRightDown.drawDraggableFurniture();    
+            chairRightUp.drawDraggableFurniture(); 
+
+
             stove.drawFurniture();
             stove.isClose(userSprite);
             fridge.drawFurniture();
@@ -1158,16 +1291,9 @@ function updatePlayerArea()
             //ladyNPCSprite.path();
             //ladyNPCSprite.detectPlayerNearby();
             //add in the user
-            if (userSprite.hasCandle)
-            {
-                firstFloorBackground.darkenBehindTheWalls();
-            }
             userSprite.animate();
             //darken behind the walls
-            if (!userSprite.hasCandle)
-            {
-                firstFloorBackground.darkenBehindTheWalls();
-            }
+            firstFloorBackground.darkenBehindTheWalls();
             break;
         case 'basement':
             basementBackground.addmap();
@@ -1175,17 +1301,9 @@ function updatePlayerArea()
             //childNPCSprite.animate();
             //childNPCSprite.path();
             //childNPCSprite.detectPlayerNearby();
-            if (userSprite.hasCandle)
-            {
-                basementBackground.darkenBehindTheWalls();
-            }
             userSprite.animate();
             //darken behind the walls
-            if (!userSprite.hasCandle)
-            {
-                basementBackground.darkenBehindTheWalls();
-            }
-
+            firstFloorBackground.darkenBehindTheWalls();
             break;
         case 'secondFloor':
             secondFloorBackground.addmap();
@@ -1193,19 +1311,16 @@ function updatePlayerArea()
             //manNPCSprite.animate();
             //manNPCSprite.path();
             //manNPCSprite.detectPlayerNearby();
-            if (userSprite.hasCandle)
-            {
-                secondFloorBackground.darkenBehindTheWalls();
-            }
             userSprite.animate();
             //darken behind the walls
-            if (!userSprite.hasCandle)
-            {
-                secondFloorBackground.darkenBehindTheWalls();
-            }
+            firstFloorBackground.darkenBehindTheWalls();
             break;
         case "transition" :
             playerAreaCanvas.transition();
+            break;
+        case "lost":
+            break;
+        case "won":
             break;
 
     }

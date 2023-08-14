@@ -4,19 +4,23 @@ class InventoryCanvas extends Canvas
     constructor(canvasID, width, height)
     {
         super (canvasID, width,height)
-        this.ctx             = null;
-        this.canvasElement   = null;
+        this.ctx                   = null;
+        this.canvasElement         = null;
         //Boolean values that tell you whether or not a slot is filled
-        this.inventoryArray  = [0,0,0,0,0,0,0,0,0]
+        this.inventoryArray        = [0,0,0,0,0,0,0,0,0]
         //once you get a food item, youre going to stack it in that inventory slot
         // note: the name and item of it is always candy 
         //this holds the index number of the food slot
-        this.foodSlot        = null;
-        this.foodCounter     = 0;
+        this.foodSlot               = null;
+        this.foodCounter            = 0;
         //Updates your progress bar
-        this.progressCounter = 0;
+        this.progressCounter        = 0;
+        //Updates if you completed the dragging task so you dont complete multiple times
+        //need two moves to complete it 
+        this.completedDraggingQuestCount = 0;
         //Updates your health counter 
-        this.health          = 5;
+        this.health                 = 5;
+
     }
     //Purpose: removes hearts on hit and sends to the endgame event if you die 
     updateHearts()
@@ -76,7 +80,7 @@ class InventoryCanvas extends Canvas
         const inventoryBoxesCoords =
         {
             "0" : [64,192],
-            "1" : [160,192],
+            "1" : [190,192],
             "2" : [256, 192],
             "3" : [64,288],
             "4" : [160,288],
@@ -199,11 +203,11 @@ class InventoryCanvas extends Canvas
         const barCoords = 
         {
             '0' : [92,33],
-            '1' : [134.1,38.5],
-            '2' : [164.1,33.5],
-            '3' : [194.1,33.5],
-            '4' : [224.1, 33.5],
-            '5' : [254.1,33.5],
+            '1' : [120,33],
+            '2' : [164.1,33],
+            '3' : [194.1,33],
+            '4' : [224.1, 33],
+            '5' : [254.1,33],
         }
         //Execute
         switch(this.progressCounter)
@@ -223,6 +227,9 @@ class InventoryCanvas extends Canvas
                 fullbar.drawImage();
                 break;
             case 3:
+                halfbar.xCoord = barCoords[1][0];
+                halfbar.yCoord = barCoords[1][1];
+                halfbar.drawImage();
                 break;
             case 4:
                 break;
