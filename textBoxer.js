@@ -17,6 +17,7 @@ const allTexts =
 }
 //Purpose: for the sake of linear quest progression, keep track of if a quest has been completed. If you do it out of order, youll just have to redo the quest, if applicable. 
 //         If not, use the second boolean to then see if you have already done it. If it doesnt apply, the value will be null.
+//TODO this hasnt been implemented at all yet
 const completionTracker =
 {
     'starting'            : [false,false],
@@ -61,7 +62,8 @@ const allPlayerOptions =
     'dragItem'              : "Press r to drag item, then r to drop item",
     'stereo'                : "Press e to start the stereo",
     'breakBox'              : "Press e to flicker the lights",
-    'breakingItem'          : "Press e three times to smash the object"
+    'breakingItem'          : "Press e three times to smash the object",
+    'noWeapon'              : "I need a weapon before I can smash this object."
 }
 //Purpose            : extends the Canvas class to include clickable areas and buttons. This also holds all the text rewriting functionality.
 // All instantiations: TextCanvas
@@ -151,6 +153,8 @@ class ClickableCanvas extends Canvas
     } 
     rewriteText(tempDirection)
     {
+        //Purpose: A helper function because you repeat the text a lot
+        //TODO implement this
         if (tempDirection == null)
         {
             let key = this.currentTextKey;
@@ -265,7 +269,6 @@ class ClickableCanvas extends Canvas
             this.ctx.fillStyle = "black";
             this.ctx.fillText(this.currentText, 65, 90);
             this.counter++;
-
         }
         else if (tempDirection == "rummageDrawers")
         {
@@ -306,6 +309,36 @@ class ClickableCanvas extends Canvas
             this.ctx.fillStyle = "black";
             this.ctx.fillText(this.currentText, 65, 90);
             this.counter++;
+        }
+        else if (tempDirection == "breakingItem")
+        {
+            if (this.counter == 0)
+            {
+                this.previousText = this.currentText; 
+            }
+            this.currentText = allPlayerOptions.breakingItem;
+            this.ctx.clearRect(0,0,this.width,this.height);
+            textBackground.drawImage();
+            this.ctx.font = "bold 20px Courier New";
+            this.ctx.fillStyle = "black";
+            this.ctx.fillText(this.currentText, 65, 90);
+            this.counter++;
+
+        }
+        else if(tempDirection == "noWeapon")
+        {
+            if (this.counter == 0)
+            {
+                this.previousText = this.currentText; 
+            }
+            this.currentText = allPlayerOptions.noWeapon;
+            this.ctx.clearRect(0,0,this.width,this.height);
+            textBackground.drawImage();
+            this.ctx.font = "bold 20px Courier New";
+            this.ctx.fillStyle = "black";
+            this.ctx.fillText(this.currentText, 65, 90);
+            this.counter++;
+
         }
         else if (tempDirection == "returnToText")
         {

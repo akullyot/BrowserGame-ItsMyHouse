@@ -189,6 +189,21 @@ class InventoryCanvas extends Canvas
         }
         else if (itemArray.includes("mace"))
         {
+            //update your progress bar
+            this.progressCounter++;
+            this.updateProgressBar();
+
+            TextCanvas.currentTextKey = "smashMirrorQuest";
+            // -1 not 0 to make the rewriteText work correctly
+            TextCanvas.currentTextArrayIndex = -1;
+            TextCanvas.totalArrayIndex = allTexts[TextCanvas.currentTextKey].length;
+            //to make rewriting the text work 
+            TextCanvas.previousText = allTexts[TextCanvas.currentTextKey][0];
+
+            button.status = "progress";
+            TextCanvas.rewriteText();
+            userSprite.hasWeapon = true;
+            //TODO do i need a hasbook boolean?
             
         }
         else

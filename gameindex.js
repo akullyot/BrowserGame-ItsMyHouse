@@ -122,10 +122,10 @@ class ImageClass
 }
 // Purpose        :
 // Instantiations :
-// ChildClasses   : Note: this ideally should be extended but has not been due to time constraints/not the best plannign
+// ChildClasses   : DraggableItem   (Note: this ideally should be extended but has not been due to time constraints/not the best plannign (extended to a breakable, and then pickup/isopenable should be together)
 class InteractableItem extends ImageClass
 {
-    constructor (src, xCoord, yCoord, height, width,isBreakable,isOpenable,isPickupItem,itemsInside)
+    constructor (src, xCoord, yCoord, height, width,isBreakable,isOpenable,isPickupItem,itemsInside,brokenSrc)
     {
         super(src,xCoord,yCoord,height, width);
         //there are different typres of furnitures with different functionalities that are
@@ -188,8 +188,15 @@ class InteractableItem extends ImageClass
             }
             else if (this.isBreakable)
             {
-                TextCanvas.rewriteText("breakingItem")
-            }
+                if (userSprite.hasWeapon)
+                {
+                    TextCanvas.rewriteText("breakingItem");
+                }
+                else
+                {
+                    TextCanvas.rewriteText("noWeapon")
+                }
+            } 
         }
         else if (
             player.yCoord == player.previousYCoord && player.xCoord == player.previousXCoord &&
@@ -257,6 +264,9 @@ class InteractableItem extends ImageClass
         playerAreaCanvas.ctx.fillRect(this.xCoord +5 ,this.yCoord + 5,this.width,this.height);
     }
 }
+//Purpose         :
+//Instantiations  :
+//ChildClasses    : none
 class DraggableItem extends InteractableItem
 {
     constructor(src, xCoord, yCoord, height, width)
@@ -411,6 +421,10 @@ class DraggableItem extends InteractableItem
             //if they have 
     }
 }
+//Purpose         :
+//Instantiations  :
+//ChildClasses    : nonPlayable Character
+//TODO there should be a user and a nonplayable child class child, with them being sisters
 class MoveableImage extends ImageClass
 {
     constructor (src,xCoord, yCoord,srcX,srcY,height,width,canvasID,speed)
@@ -531,7 +545,6 @@ class MoveableImage extends ImageClass
     getPreviousXandY()
     {
         this.previousXCoord = this.xCoord;
-        //you dont update when using the door because the collision detection will push you back and its hard to time that correctly
         this.previousYCoord = this.yCoord;
     }
     //Purpose: Move through paintings on a q click
@@ -565,6 +578,8 @@ class NonPlayableCharacter extends MoveableImage
     constructor (src,xCoord,yCoord,srcX,srcY,height,width,canvasID,currentPathName,currentPathTrack,floor)
     {
         super (src,xCoord,yCoord,srcX,srcY,height,width,canvasID);
+        //to have pathing work this needs to be easily added to 1, for example 0.5,0.25,etc, because the switches need to be hit exactly
+        //in pathing and hihger speeds could skip over them
         this.speed = 1;
         //firstFloor,basement,secondFloor
         this.floor = floor;
@@ -577,7 +592,7 @@ class NonPlayableCharacter extends MoveableImage
         this.totalFrames               = 7;
         this.currentFrame              = 0;
         //used for pathing
-        //there are three different paths that are randomly selected once they finish
+        //there are two different paths that are randomly selected once they finish
         this.currentPathName           = null;
         //each path has individual tracks
         this.currentPathTrack          = null;
@@ -1029,7 +1044,9 @@ class NonPlayableCharacter extends MoveableImage
         }
     }
 }
-//TODO convert to children Player and NonPlayableCharacter
+//Purpose         :
+//Instantiations  :
+//ChildClasses    : none
 class Background extends ImageClass
 {
     constructor (src, height, width, canvasID ,mapArrayObject,tileSize,floor)
@@ -1177,6 +1194,9 @@ class Background extends ImageClass
     }
 
 }
+//Purpose         :
+//Instantiations  :
+//ChildClasses    : none
 class Wall 
 {
     constructor (xCoord,yCoord)
@@ -1203,6 +1223,9 @@ class Wall
             } 
     }
 }
+//Purpose         :
+//Instantiations  :
+//ChildClasses    : Door, Stair
 class Door extends Wall
 {
     constructor(xCoord,yCoord)
@@ -1312,6 +1335,9 @@ class Door extends Wall
     }
 }
 }
+//Purpose         :
+//Instantiations  :
+//ChildClasses    : 
 class Stair extends Wall
 {
     constructor(xCoord,yCoord,type)
@@ -1438,191 +1464,6 @@ class Stair extends Wall
 }
 
 
-
-//Used in creating the canvases
-const fullAreaWidth = 960;
-const fullAreaHeight = 480;
-const widthAddition = 352;
-const heightAddition = 100;
-
-const playerAreaCanvas = new Canvas ("playerArea", fullAreaWidth, fullAreaHeight, "firstFloor");
-playerAreaCanvas.getCanvasMade();
-
-//Add in the image of the user Sprite
-const userSprite = new MoveableImage("assets/spriteSheets/playerspritesheet.png", 56,7,0,0,64,64,"playerArea",7);
-userSprite.createImageElement();
-userSprite.createWeaponImageElement();
-
-
-//Add in the images of the NPC sprites
-const ladyNPCSprite = new NonPlayableCharacter("assets/spriteSheets/ladySpriteSheet.png",721,211,0,0,64,64,"playerArea","pathOne", "down", "firstFloor");
-ladyNPCSprite.createImageElement();
-
-const manNPCSprite = new NonPlayableCharacter("assets/spriteSheets/manSpriteSheet.png",525,218,0,0,64,64,"playerArea","pathOne", "down", "secondFloor"); 
-manNPCSprite.createImageElement();
-
-const childNPCSprite = new NonPlayableCharacter("assets/spriteSheets/childSpriteSheet.png",210,182,0,0,64,64,"playerArea","pathOne", "down", "basement");
-childNPCSprite.createImageElement();
-
-
-//Add in the dialogue popups for the NPC 
-const startledDialog = new ImageClass ("assets/spriteSheets/scaredNPC.png",null, null, 32,32,"playerArea");
-startledDialog.createImageElement();
-const warningDialog = new ImageClass ("assets/spriteSheets/warningNPC.png",null, null, 32,32,"playerArea");
-warningDialog.createImageElement();
-//Add in the backgrounds for each floor
-
-const firstFloorBackground = new Background("assets/firstFloor/firstfloor.png",1000, 600, "playerArea",firstFloorMaps, 32);
-firstFloorBackground.createImageElement();
-const basementBackground = new Background("assets/basement/basement.png",1000, 600, "playerArea",basementMaps, 32);
-basementBackground.createImageElement();
-const secondFloorBackground = new Background("assets/secondFloor/secondFloor.png",1000, 600, "playerArea",secondFloorMaps, 32);
-secondFloorBackground.createImageElement();
-
-//Add in all the interactable items 
-//First Floor
-const stove = new InteractableItem('assets/firstFloor/Items/stove.png', 638, 193, 32,32, true,false, false);
-stove.createImageElement();
-const fridge = new InteractableItem('assets/firstFloor/Items/fridge.png', 672, 160, 32*2,32, false ,true, false, [])
-fridge.createImageElement();
-
-const bookshelfLeft = new InteractableItem('assets/firstFloor/Items/bookshelf.png', 5, 140, 32*2,32*2, false, false, false)
-bookshelfLeft.createImageElement();
-const bookshelfRight = new InteractableItem('assets/firstFloor/Items/bookshelf.png', 75, 140, 32*2,32*2, false,false, false)
-bookshelfRight.createImageElement();
-
-const chairRightDown = new DraggableItem('assets/firstFloor/Items/chairleft.png', 170, 270, 20,20)
-chairRightDown.createImageElement();
-const chairRightUp= new DraggableItem('assets/firstFloor/Items/chairleft.png', 170, 320, 20,20)
-chairRightUp.createImageElement();
-
-
-const vanity = new InteractableItem('assets/firstFloor/Items/vanity.png', 480, 170, 40,40, false,true, false, ['candy', 'candle'])
-vanity.createImageElement();
-const dresserLeft  = new InteractableItem('assets/firstFloor/Items/dresser.png', 155, 90, 40,40, true,true,false, ["candy"]);
-dresserLeft.createImageElement();
-const dresserRight  = new InteractableItem('assets/firstFloor/Items/dresser.png', 420, 90, 40,40, true,true,false, ["candy"]);
-dresserRight.createImageElement();
-
-const toilet = new InteractableItem('assets/firstFloor/Items/toilet.png', 830, 70, 32*2,32, true,false,false);
-toilet.createImageElement();
-
-const book = new InteractableItem("assets/questItems/book.png", 53,310,40,32, false, false, true, ['book']);
-book.createImageElement();
-// Second Floor
-
-const doll = new DraggableItem("assets/questItems/doll.png", 200,220, 32,32);
-doll.createImageElement();
-
-const dresserSecond  = new InteractableItem('assets/firstFloor/Items/dresser.png', 480, 170, 40,40, true,true,false, ["candy", "mace"]);
-dresserSecond.createImageElement();
-
-const stereo = new InteractableItem('assets/secondFloor/Items/speaker.png', 355, 80, 60,30, true,false,false);
-stereo.createImageElement();
-const mirror = new InteractableItem('assets/secondFloor/Items/mirror.png', 700, 258, 32,32, true,false,false);
-mirror.createImageElement();
-
-
-
-
-
-function updatePlayerArea() 
-{
-    //clear the screen
-    playerAreaCanvas.ctx.clearRect(0,0,playerAreaCanvas.width, playerAreaCanvas.height); // So the contents of the previous frame can be cleared
-    //add in the background
-    //Switch the floor accordingly 
-    switch(playerAreaCanvas.floor)
-    {
-        case 'firstFloor':
-            firstFloorBackground.addmap();
-            //add furniture
-            vanity.drawFurniture();
-            vanity.isClose(userSprite);
-            dresserLeft.drawFurniture();
-            dresserLeft.isClose(userSprite);
-            dresserRight.drawFurniture();
-            dresserRight.isClose(userSprite);
-
-            bookshelfLeft.drawFurniture();
-            bookshelfRight.drawFurniture();
-            
-            chairRightDown.drawDraggableFurniture();    
-            chairRightUp.drawDraggableFurniture(); 
-
-
-            stove.drawFurniture();
-            stove.isClose(userSprite);
-            fridge.drawFurniture();
-            fridge.isClose(userSprite);
-            toilet.drawFurniture();
-            toilet.isClose(userSprite);
-            // add in items
-            if (book.itemsInside.length !== 0)
-            {
-                book.drawFurniture();
-                book.isClose(userSprite);
-            }
-           
-        
-            //add in NPCs
-            ladyNPCSprite.animate();
-            ladyNPCSprite.path();
-            ladyNPCSprite.detectPlayerNearby();
-
-            //add in the user 
-            userSprite.animate();
-            //darken behind the walls
-            firstFloorBackground.darkenBehindTheWalls();
-            break;
-        case 'basement':
-            basementBackground.addmap();
-            //add in NPCs
-            childNPCSprite.animate();
-            childNPCSprite.path();
-            childNPCSprite.detectPlayerNearby();
-
-            userSprite.animate();
-            //darken behind the walls
-            basementBackground.darkenBehindTheWalls();
-            break;
-        case 'secondFloor':
-            secondFloorBackground.addmap();
-            //add in furniture
-            //rummagable
-            dresserSecond.drawFurniture();
-            dresserSecond.isClose(userSprite);
-            //breakable (stereo is a special type of breakable)
-              stereo.drawFurniture();
-              stereo.isClose(userSprite);
-              mirror.drawFurniture();
-              mirror.isClose(userSprite);
-
-            //pickupable
-            doll.drawDraggableFurniture();
-           
-
-            //add in NPCs
-            manNPCSprite.animate();
-            manNPCSprite.path();
-            manNPCSprite.detectPlayerNearby();
-            //add in the user
-            userSprite.animate();
-
-            //darken behind the walls
-            secondFloorBackground.darkenBehindTheWalls();
-            break;
-        case "transition" :
-            playerAreaCanvas.transition();
-            break;
-        case "lost":
-            break;
-        case "won":
-            break;
-
-    }
-    requestAnimationFrame(updatePlayerArea); //The function will be called repeatedly on each new framed
-}
 
 
 
