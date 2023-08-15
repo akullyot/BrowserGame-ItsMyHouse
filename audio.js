@@ -35,3 +35,7 @@ stairSoundElement.loop = false;
 const stereoSoundElement = new Audio ("assets/audio/speakerMusic.wav");
 stereoSoundElement.volume = 0.05;
 stereoSoundElement.loop  = false;
+
+const breakingSoundElement = new Audio ("assets/audio/break.wav");
+breakingSoundElement.volume = 0.5;
+breakingSoundElement.loop  = false;

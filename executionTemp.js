@@ -144,7 +144,6 @@ document.addEventListener("keydown", async function (e){
                 button.status = "progress";
                 TextCanvas.rewriteText();
                 stereoSoundElement.play();
-            
        } 
        else if (userSprite.byFurniture)
        {
@@ -155,6 +154,50 @@ document.addEventListener("keydown", async function (e){
             else if (userSprite.Furnitureby.isPickupItem)
             {
                 statsCanvas.addInventoryItem(userSprite.Furnitureby)
+            }
+            else if (userSprite.Furnitureby.isBreakable)
+            {
+                if (userSprite.hasWeapon && !userSprite.Furnitureby.isBroken)
+                {
+                    //make a breaking noise
+                    breakingSoundElement.play();
+                    userSprite.Furnitureby.isBroken = true;
+                    if (userSprite.Furnitureby == mirror)
+                    {
+                        //move on to flickering lights
+                        statsCanvas.progressCounter++;
+                        statsCanvas.updateProgressBar();
+                        TextCanvas.currentTextKey = "breakerBoxQuest";
+                        // -1 not 0 to make the rewriteText work correctly
+                        TextCanvas.currentTextArrayIndex = -1;
+                        TextCanvas.totalArrayIndex = allTexts[TextCanvas.currentTextKey].length;
+                        //to make rewriting the text work 
+                        TextCanvas.previousText = allTexts[TextCanvas.currentTextKey][0];
+                        //reset the button
+                        button.status = "progress";
+                        TextCanvas.rewriteText();
+                        questCompleteSoundElement.play();
+                    }
+                    else if (userSprite.Furnitureby == toilet)
+                    {
+                        //move on to spray paint
+                        statsCanvas.progressCounter++;
+                        statsCanvas.updateProgressBar();
+                    
+                        //bookquest
+                        TextCanvas.currentTextKey = "sleepingQuest";
+                        // -1 not 0 to make the rewriteText work correctly
+                        TextCanvas.currentTextArrayIndex = -1;
+                        TextCanvas.totalArrayIndex = allTexts[TextCanvas.currentTextKey].length;
+                        //to make rewriting the text work 
+                        TextCanvas.previousText = allTexts[TextCanvas.currentTextKey][0];
+                        //reset the button
+                        button.status = "progress";
+                        TextCanvas.rewriteText();
+                        questCompleteSoundElement.play();
+                    }
+
+                }
             }
        }
 

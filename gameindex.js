@@ -128,21 +128,44 @@ class InteractableItem extends ImageClass
     constructor (src, xCoord, yCoord, height, width,isBreakable,isOpenable,isPickupItem,itemsInside,brokenSrc)
     {
         super(src,xCoord,yCoord,height, width);
+        //used to load in the broken furniture image that displays on breaking
+        this.brokenSrc                = brokenSrc;
+        this.BrokenImageElement       = null;
+        this.isBroken                 = false;
         //there are different typres of furnitures with different functionalities that are
         //turned on and off with booleans
-        this.isBreakable    = isBreakable;
+        this.isBreakable              = isBreakable;
         //these are items on the floor that you can pick up and add to inventory   
-        this.isPickupItem   = isPickupItem; 
+        this.isPickupItem             = isPickupItem; 
         //these are desks/drawers you can rummage through
-        this.isOpenable     = isOpenable;
+        this.isOpenable               = isOpenable;
         //THIS APPLIES to both isPickupItem and isOpenable. this is an array of the item itself/ the items inside. 
         // Note: this will reset each time you reload a floor except for pickup items and quest items 
-        this.itemsInside    = itemsInside;    
+        this.itemsInside              = itemsInside;    
+    }
+    createBrokenImageElement()
+    {
+        let image = new Image();
+        image.src = this.brokenSrc;
+        this.BrokenImageElement = image;
     }
     drawFurniture()
     {
-        //note: need to create an image before using
-        playerAreaCanvas.ctx.drawImage(this.imageElement, this.xCoord, this.yCoord);
+        if(this.BrokenImageElement !== null)
+        {
+            if (this.isBroken)
+            {
+                playerAreaCanvas.ctx.drawImage(this.BrokenImageElement, this.xCoord, this.yCoord);
+            }
+            else
+            {
+                playerAreaCanvas.ctx.drawImage(this.imageElement, this.xCoord, this.yCoord);
+            }
+        } 
+        else
+        {
+            playerAreaCanvas.ctx.drawImage(this.imageElement, this.xCoord, this.yCoord);
+        }
     }
     isClose(player)
     {
@@ -178,21 +201,21 @@ class InteractableItem extends ImageClass
                 TextCanvas.rewriteText('pickingUpItem');
             }
             //Specifically for the breaker box and stereo, they have custom messages. Ideally I would have changed the class system to compensate
-            else if (stereo.isBreakable)
+            else if (this == stereo)
             {
                 TextCanvas.rewriteText("stereo")
             }
-            else if (breakerBox.isBreakable)
+            else if (this == null)
             {
                 TextCanvas.rewriteText("breakerBox")
             }
             else if (this.isBreakable)
             {
-                if (userSprite.hasWeapon)
+                if (userSprite.hasWeapon && !this.isBroken)
                 {
                     TextCanvas.rewriteText("breakingItem");
                 }
-                else
+                else if (!this.isBroken)
                 {
                     TextCanvas.rewriteText("noWeapon")
                 }
@@ -222,7 +245,7 @@ class InteractableItem extends ImageClass
                     {
                         TextCanvas.rewriteText('pickingUpItem');
                     }
-                    else if (stereo.isBreakable)
+                    else if (this == stereo)
                     {
                         TextCanvas.rewriteText("stereo")
                     }
@@ -232,6 +255,15 @@ class InteractableItem extends ImageClass
                     }
                     else if (this.isBreakable)
                     {
+                        if (userSprite.hasWeapon)
+                        {
+                            TextCanvas.rewriteText("breakingItem");
+                        }
+                        else
+                        {
+                            TextCanvas.rewriteText("noWeapon")
+                        }
+                    }                     {
                         TextCanvas.rewriteText("BreakingItem")
                     }
                 }

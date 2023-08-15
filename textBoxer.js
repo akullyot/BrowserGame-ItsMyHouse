@@ -62,7 +62,7 @@ const allPlayerOptions =
     'dragItem'              : "Press r to drag item, then r to drop item",
     'stereo'                : "Press e to start the stereo",
     'breakBox'              : "Press e to flicker the lights",
-    'breakingItem'          : "Press e three times to smash the object",
+    'breakingItem'          : "Press e to smash the object",
     'noWeapon'              : "I need a weapon before I can smash this object."
 }
 //Purpose            : extends the Canvas class to include clickable areas and buttons. This also holds all the text rewriting functionality.

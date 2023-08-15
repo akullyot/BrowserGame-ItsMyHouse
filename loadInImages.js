@@ -12,7 +12,7 @@ const playerAreaCanvas = new Canvas ("playerArea", fullAreaWidth, fullAreaHeight
 playerAreaCanvas.getCanvasMade();
 
 //Add in the image of the user Sprite
-const userSprite = new MoveableImage("assets/spriteSheets/playerspritesheet.png", 56,7,0,0,64,64,"playerArea",5);
+const userSprite = new MoveableImage("assets/spriteSheets/playerspritesheet.png", 56,7,0,0,64,64,"playerArea",6);
 userSprite.createImageElement();
 userSprite.createWeaponImageElement();
 
@@ -47,14 +47,14 @@ secondFloorBackground.createImageElement();
 
 //Add in all the interactable items 
 //First Floor
-const stove = new InteractableItem('assets/firstFloor/Items/stove.png', 638, 193, 32,32, true,false, false);
+const stove = new InteractableItem('assets/firstFloor/Items/stove.png', 638, 193, 32,32, false,false, false, null); //didnt end up giving it any functionality in time
 stove.createImageElement();
-const fridge = new InteractableItem('assets/firstFloor/Items/fridge.png', 672, 160, 32*2,32, false ,true, false, [])
+const fridge = new InteractableItem('assets/firstFloor/Items/fridge.png', 672, 160, 32*2,32, false ,true, false, ["candy"],null)
 fridge.createImageElement();
 
-const bookshelfLeft = new InteractableItem('assets/firstFloor/Items/bookshelf.png', 5, 140, 32*2,32*2, false, false, false)
+const bookshelfLeft = new InteractableItem('assets/firstFloor/Items/bookshelf.png', 5, 140, 32*2,32*2, false, true, false, [], null) //bug: these should be showing the empty dialogue
 bookshelfLeft.createImageElement();
-const bookshelfRight = new InteractableItem('assets/firstFloor/Items/bookshelf.png', 75, 140, 32*2,32*2, false,false, false)
+const bookshelfRight = new InteractableItem('assets/firstFloor/Items/bookshelf.png', 75, 140, 32*2,32*2, false,true, false, [], null)
 bookshelfRight.createImageElement();
 
 const chairRightDown = new DraggableItem('assets/firstFloor/Items/chairleft.png', 170, 270, 20,20)
@@ -63,32 +63,39 @@ const chairRightUp= new DraggableItem('assets/firstFloor/Items/chairleft.png', 1
 chairRightUp.createImageElement();
 
 
-const vanity = new InteractableItem('assets/firstFloor/Items/vanity.png', 480, 170, 40,40, false,true, false, ['candy', 'candle'])
+const vanity = new InteractableItem('assets/firstFloor/Items/vanity.png', 480, 170, 40,40, false,true, false, ['candy', 'candle'],null)
 vanity.createImageElement();
-const dresserLeft  = new InteractableItem('assets/firstFloor/Items/dresser.png', 155, 90, 40,40, true,true,false, ["candy"]);
+const dresserLeft  = new InteractableItem('assets/firstFloor/Items/dresser.png', 155, 90, 40,40, false,true,false, ["candy"], null);
 dresserLeft.createImageElement();
-const dresserRight  = new InteractableItem('assets/firstFloor/Items/dresser.png', 420, 90, 40,40, true,true,false, ["candy"]);
+const dresserRight  = new InteractableItem('assets/firstFloor/Items/dresser.png', 420, 90, 40,40, false,true,false, ["candy"],null);
 dresserRight.createImageElement();
 
-const toilet = new InteractableItem('assets/firstFloor/Items/toilet.png', 830, 70, 32*2,32, true,false,false);
+const toilet = new InteractableItem('assets/firstFloor/Items/toilet.png', 830, 70, 32*2,32, true,false,false,null, "assets/firstFloor/Items/postInteraction/brokentoilet.png");
 toilet.createImageElement();
+toilet.createBrokenImageElement();
 
-const book = new InteractableItem("assets/questItems/book.png", 53,310,40,32, false, false, true, ['book']);
+const book = new InteractableItem("assets/questItems/book.png", 53,310,40,32, false, false, true, ['book'], null);
 book.createImageElement();
+
+
+
 // Second Floor
 
 const doll = new DraggableItem("assets/questItems/doll.png", 200,220, 32,32);
 doll.createImageElement();
 
-const dresserSecond  = new InteractableItem('assets/firstFloor/Items/dresser.png', 480, 170, 40,40, true,true,false, ["candy", "mace"]);
+const dresserSecond  = new InteractableItem('assets/firstFloor/Items/dresser.png', 480, 170, 40,40, false,true,false, ["candy", "mace"], null);
 dresserSecond.createImageElement();
 
-const stereo = new InteractableItem('assets/secondFloor/Items/speaker.png', 355, 80, 60,30, true,false,false);
+const stereo = new InteractableItem('assets/secondFloor/Items/speaker.png', 355, 80, 60,30, true,false,false, null,null); //its in the breakable category but it isnt really. it instead plays music
 stereo.createImageElement();
-const mirror = new InteractableItem('assets/secondFloor/Items/mirror.png', 700, 258, 32,32, true,false,false);
+const mirror = new InteractableItem('assets/secondFloor/Items/mirror.png', 700, 258, 60,32, true,false,false, null, "assets/secondFloor/Items/postInteraction/brokenMirror.png");
 mirror.createImageElement();
+mirror.createBrokenImageElement();
 
 //Basement
+
+
 
 
 
