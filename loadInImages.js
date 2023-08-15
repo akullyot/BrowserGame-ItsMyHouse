@@ -1,0 +1,1 @@
+//Purpose: load in every image used by the player canvas

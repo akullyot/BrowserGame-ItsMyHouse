@@ -532,6 +532,9 @@ class MoveableImage extends ImageClass
             }
     }
 }
+// Purpose        : Holds all functions and parametres associated with any NPC. 
+// Instantiations : ladyNPCSprite,manNPCSprite,childNPCSprite
+// ChildClasses   : None
 class NonPlayableCharacter extends MoveableImage
 {
     constructor (src,xCoord,yCoord,srcX,srcY,height,width,canvasID,currentPathName,currentPathTrack,floor)
@@ -851,7 +854,43 @@ class NonPlayableCharacter extends MoveableImage
                 }
                 break;
             case "basement":
+                //there is only one path this sprite takes
+                if 
+                (
+                    (this.xCoord == 497 && this.yCoord == 182)||
+                    (this.xCoord == 749  && this.yCoord == 119)
 
+                )
+                {
+
+                    this.currentPathTrack = "down";
+                }
+                else if 
+                (
+                    (this.xCoord == 721 && this.yCoord == 259) ||
+                    (this.xCoord == 483 && this.yCoord == 315) ||
+                    (this.xCoord == 210 && this.yCoord == 259)
+                )
+                {
+                    this.currentPathTrack = "up";  
+                }
+                else if 
+                (
+                    (this.xCoord == 483 && this.yCoord == 259) ||
+                    (this.xCoord == 749 && this.yCoord == 315)
+                )
+                {
+                    this.currentPathTrack = "left"
+                }
+                else if 
+                (
+                    (this.xCoord == 210 && this.yCoord == 182) ||
+                    (this.xCoord == 497 && this.yCoord == 259) ||
+                    (this.xCoord == 721 && this.yCoord == 119) 
+                )
+                {
+                    this.currentPathTrack = "right"
+                }
                 break;
         }
 
@@ -1395,7 +1434,7 @@ ladyNPCSprite.createImageElement();
 const manNPCSprite = new NonPlayableCharacter("assets/spriteSheets/manSpriteSheet.png",525,218,0,0,64,64,"playerArea","pathOne", "down", "secondFloor"); 
 manNPCSprite.createImageElement();
 
-const childNPCSprite = new NonPlayableCharacter("assets/spriteSheets/childSpriteSheet.png",721,211,0,0,64,64,"playerArea","pathOne", "down", "basement");
+const childNPCSprite = new NonPlayableCharacter("assets/spriteSheets/childSpriteSheet.png",210,182,0,0,64,64,"playerArea","pathOne", "down", "basement");
 childNPCSprite.createImageElement();
 
 
