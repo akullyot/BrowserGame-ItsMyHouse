@@ -1,4 +1,6 @@
-
+//Purpose            : extends the Canvas class to include all functions pertaining to inventory collection,quest tracking,and health tracking.
+//Future Addition    : There is an area for hunger tracking and food consumption that I never made due to time constraints
+//All instantiations : StatsCanvas
 class InventoryCanvas extends Canvas
 {
     constructor(canvasID, width, height)
@@ -16,8 +18,8 @@ class InventoryCanvas extends Canvas
         //Updates your progress bar
         this.progressCounter        = 0;
         //Updates if you completed the dragging task so you dont complete multiple times
-        //need two moves to complete it 
-        this.completedDraggingQuestCount = 0;
+        // when complete, the array will include "chairQuest", "dollQuest" 
+        this.completedDraggingQuestCount = [];
         //Updates your health counter 
         this.health                 = 5;
 
@@ -80,7 +82,7 @@ class InventoryCanvas extends Canvas
         const inventoryBoxesCoords =
         {
             "0" : [64,192],
-            "1" : [190,192],
+            "1" : [160,192],
             "2" : [256, 192],
             "3" : [64,288],
             "4" : [160,288],
@@ -184,7 +186,10 @@ class InventoryCanvas extends Canvas
             button.status = "progress";
             TextCanvas.rewriteText();
             //TODO do i need a hasbook boolean?
-
+        }
+        else if (itemArray.includes("mace"))
+        {
+            
         }
         else
         {
@@ -203,11 +208,11 @@ class InventoryCanvas extends Canvas
         const barCoords = 
         {
             '0' : [92,33],
-            '1' : [120,33],
-            '2' : [164.1,33],
-            '3' : [194.1,33],
-            '4' : [224.1, 33],
-            '5' : [254.1,33],
+            '1' : [123.1,33],
+            '2' : [164.1,33.5],
+            '3' : [194.1,33.5],
+            '4' : [224.1, 33.5],
+            '5' : [254.1,33.5],
         }
         //Execute
         switch(this.progressCounter)
@@ -232,20 +237,49 @@ class InventoryCanvas extends Canvas
                 halfbar.drawImage();
                 break;
             case 4:
+                fullbar.xCoord = barCoords[1][0]+2;
+                fullbar.yCoord = barCoords[1][1] + 7;
+                fullbar.drawImage();
                 break;
             case 5:
+                halfbar.xCoord = barCoords[2][0];
+                halfbar.yCoord = barCoords[2][1];
+                halfbar.drawImage();
                 break;
             case 6:
+                fullbar.xCoord = barCoords[2][0]+2;
+                fullbar.yCoord = barCoords[2][1] + 7;
+                fullbar.drawImage();
                 break;
             case 7:
+                halfbar.xCoord = barCoords[3][0];
+                halfbar.yCoord = barCoords[3][1];
+                halfbar.drawImage();
                 break;
             case 8:
+                fullbar.xCoord = barCoords[3][0]+2;
+                fullbar.yCoord = barCoords[3][1] + 7;
+                fullbar.drawImage();
                 break;
             case 9:
+                halfbar.xCoord = barCoords[4][0];
+                halfbar.yCoord = barCoords[4][1];
+                halfbar.drawImage();
                 break;
             case 10:
+                fullbar.xCoord = barCoords[4][0]+2;
+                fullbar.yCoord = barCoords[4][1] + 7;
+                fullbar.drawImage();
                 break;
             case 11:
+                halfbar.xCoord = barCoords[5][0];
+                halfbar.yCoord = barCoords[5][1];
+                halfbar.drawImage();
+                break;
+            case 12:
+                fullbar.xCoord = barCoords[5][0];
+                fullbar.yCoord = barCoords[5][1];
+                fullbar.drawImage();
                 break;
         }
     }
@@ -269,15 +303,18 @@ statsBackground.createImageElement();
 //add in items that are found in desks and therefore only show up in the inventory
 const candle = new ImageClass ("assets/questItems/candle.png",null,null, 32,32, "informationAndStats");
 candle.createImageElement();
-const candy = new ImageClass("assets/questItems/candy.png", null,null,32,32, "informationAndStats")
+const candy = new ImageClass("assets/questItems/candy.png", null,null,32,32, "informationAndStats");
 candy.createImageElement();
+const mace = new ImageClass ("assets/questItems/mace.png",null,null,32,32, "informationAndStats");
+mace.createImageElement();
 
 //Purpose: helps with getting items out of dressers etc
 const allInventoryItems =
 {
     "candle" : candle,
     "candy"  : candy,
-    "book"   : book
+    "book"   : book,
+    "mace"   : mace
 }
 
 //add in images for progress bar, health, etc 

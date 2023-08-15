@@ -27,3 +27,11 @@ moveThroughPaintingSoundElement.loop = false;
 const questCompleteSoundElement = new Audio("assets/audio/questComplete.mp3");
 moveThroughPaintingSoundElement.volume = 0.1;
 moveThroughPaintingSoundElement.loop = false;
+
+const stairSoundElement = new Audio("assets/audio/stairwalking.mp3");
+stairSoundElement.volume = 0.1;
+stairSoundElement.loop = false;
+
+const stereoSoundElement = new Audio ("assets/audio/speakerMusic.wav");
+stereoSoundElement.volume = 0.05;
+stereoSoundElement.loop  = false;

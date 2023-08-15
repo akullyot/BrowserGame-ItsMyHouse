@@ -1,41 +1,70 @@
-//writing text onto the canvas
+//Purpose: an object of arrays, where key.array[0] contains all the text options and helps display the correct text
 const allTexts = 
 {
     'starting'            : ["I've been living in these walls for months now. I want my house back.", "If I convince the current residents that this house is haunted ..", "I'll finally have my house back.", "But... How do I do it? ", "Behind the paintings are holes I made to move in and out of the walls.", "I just can't let them know I'm here.", "First, it's pretty dark. I should try to steal a candle..."],
     'bookQuest'           : ["Quest 1 complete!", "Great. Now I can see.", "There's a book of paranormal encounters I found on the other side of the wall.", "I should enter in the wall south of the dining table and find that book."],
     'chairQuest'          : ["Quest 2 complete!","Lets look through this book...", "The progress bar in my inventory shows how far I've gotten in the book","I have 10 more quests to complete.",  "Im sure if I complete this book the family will finally leave.", "*starts reading*", "Chapter 1: Poltergeists", "So... poltergeists unexplainably move items.", "I should try with some chairs."],
     'turnOnRadioQuest'    : ["Quest 3 complete!", "Chapter 1 also says that poltergeists can manipulate electricity.", "If I turn on the radio upstairs without them catching me", "I'm sure that will scare them."],
-    'whisperQuest'        : ["Quest 4 complete!", "Chapter 2: General Ghosts..", "According to this, ghosts sometimes try to communicate with the living", "I should whisper from behind the painting when someone walks by."],
-    'breakerBoxQuest'     : ["Quest 5 complete!", "Next, "],
-    'scaryNoteQuest'      : ["Quest 6 complete!"],
-    'sleepingQuest'       : ["Quest 7 complete!"],
-    'breakDressersQuest'  : ["Quest 8 complete!"],
-    'dollQuest'           : ["Quest 9 complete!"],
-    'flickerLightsQuest'  : ["Quest 10 complete!"],
-    'sigilQuest'          : ["Quest 11 complete!", "Chapter x: the Occult", "Lets get some spray paint and make a summoning circle"]
+    'dollQuest'           : ["Quest 4 complete!", "Chapter 1 also says that poltergeists sometimes possess items", "Nothing is scarier than a possessed doll", "I should move the doll upstairs at least three tile blocks"],
+    'maceQuest'           : ["Quest 5 complete!", "Poltergeists are also extrememly violent and known to smash items", "I should find an object with which I can smash things.", "Maybe upstairs they have some sort of self defense object."],
+    'smashMirrorQuest'    : ["Quest 6 complete!", "Poltergeists also appatently really hate reflections", "I should use the mace I just picked up to smash the mirror in the bedroom"],
+    'breakerBoxQuest'     : ["Quest 7 complete!", "Chapter 2: Ghosts", "Ghosts are also able to manipulate electricity,", "Especially the lights.","I should go downstairs and turn off the breaker box,","causing the lights to flicker."],
+    'whisperQuest'        : ["Quest 8 complete!", "According to Chapter 2, ghosts sometimes try to communicate with the living", "I should whisper from behind the hole in the basement wall,", "when someone walks by."],
+    'toiletBreakQuest'    : ["Quest 9 complete!"],
+    'sleepingQuest'       : ["Quest 10 complete!"],
+    'sprayPaintQuest'     : ["Quest 11 complete!"],
+    'sigilQuest'          : ["After countless scares, you perform the coup de grâce and draw an occult symbol on the floor", "The homeowners find it, are terrified, and pack their bags immediately.", "Congratulations, the house is yours again!", "That is, until the next family moves in...."]
 }
+//Purpose: for the sake of linear quest progression, keep track of if a quest has been completed. If you do it out of order, youll just have to redo the quest, if applicable. 
+//         If not, use the second boolean to then see if you have already done it. If it doesnt apply, the value will be null.
+const completionTracker =
+{
+    'starting'            : [false,false],
+    'bookQuest'           : [false,false],
+    'chairQuest'          : [false,null],
+    'turnOnRadioQuest'    : [false,null],
+    'dollQuest'           : [false,null],
+    'maceQuest'           : [false,false],
+    'smashMirrorQuest'    : [false,false],
+    'breakerBoxQuest'     : [false,null],
+    'whisperQuest'        : [false,null],
+    'toiletBreakQuest'    : [false,false],
+    'sleepingQuest'       : [false,null],
+    'sprayPaintQuest'     : [false,false], 
+    'sigilQuest'          : [false,null]
+}
+// Purpose: for each quest, after completing the dialogue above, a basic hint is added telling the player exactly what to do, if they click on the hint button.
 const allHints = 
 {
     'starting'            : "I bet one of these dressers has a candle in it...",
-    'bookQuest'           : "the inside of the wall with the brick showing is interactable and the book is there.",
-    'chairQuest'          : " I should try dragging two of the chairs directly above me at least 3 tiles away.",
-    'whisperQuest'        : "",
-    'breakerBoxQuest'     : "",
-    'scaryNoteQuest'      : "",
-    'sleepingQuest'       : "",
-    'breakDressersQuest'  : "",
-    'dollQuest'           : "",
-    'flickerLightsQuest'  : "",
-    'sigilQuest'          : ""
+    'bookQuest'           : "The inside of the wall with the brick showing is interactable and the book is there.",
+    'chairQuest'          : "I should try dragging two of the chairs directly above me at least 3 tiles away.",
+    'turnOnRadioQuest'    : "There is a stereo upstairs I can turn on.",
+    'dollQuest'           : "Move the doll upstairs at least three tiles away.",
+    'maceQuest'           : "Search upstairs drawers for a blunt weapon.",
+    'smashMirrorQuest'    : "Smash the mirror in the upstairs bathroom with a mace.",
+    'breakerBoxQuest'     : "Interact with the grey box in the basement.",
+    'whisperQuest'        : "While the child in the basement is standing by the hole, whisper.",
+    'toiletBreakQuest'    : "Break the toilet on the first floor.",
+    'sleepingQuest'       : "While the man is sleeping upstairs, tickle his toes. Run out of the room fast!",
+    'sprayPaintQuest'     : "Search downstairs for spray paint.", 
+    'sigilQuest'          : "Congratulations on winning! Please return to the entrance page to see art and sound attributions."
 }
+//Purpose: When near an interactable item, the text will change to one of these following options. Then, when they move out of range the rewriteText option
+//         will fire and bring them back to the quest dialogue.
 const allPlayerOptions =
 {
     'byDoor'                : "Press q to move through the painting",
     'byStair'               : 'Press q to go to the other floor',
     'openingFurniture'      : "Press e to rummage through furniture",
     'pickingUpItem'         : "Press e to pickup item",
-    'dragItem'              : "Press r to drag item, then r to drop item"
+    'dragItem'              : "Press r to drag item, then r to drop item",
+    'stereo'                : "Press e to start the stereo",
+    'breakBox'              : "Press e to flicker the lights",
+    'breakingItem'          : "Press e three times to smash the object"
 }
+//Purpose            : extends the Canvas class to include clickable areas and buttons. This also holds all the text rewriting functionality.
+// All instantiations: TextCanvas
 class ClickableCanvas extends Canvas
 {
     constructor(canvasID, width,height)
@@ -95,6 +124,8 @@ class ClickableCanvas extends Canvas
     //Purpose: when mousing over the clickable next or info button, change the cursor style
     addMouseoverChange()
     {
+        //TODO when there is no button, turn off the event listener
+        //element.removeEvent listener when button not present
         let canvas = this.canvasElement;
         canvas.addEventListener('mousemove', function (event){
             let rect = canvas.getBoundingClientRect(); 
@@ -262,7 +293,21 @@ class ClickableCanvas extends Canvas
             this.ctx.fillText(this.currentText, 65, 55);
             this.counter++;
         }
-        else if (tempDirection = "returnToText")
+        else if (tempDirection == "stereo" )
+        {
+            if (this.counter == 0)
+            {
+                this.previousText = this.currentText; 
+            }
+            this.currentText = allPlayerOptions.stereo;
+            this.ctx.clearRect(0,0,this.width,this.height);
+            textBackground.drawImage();
+            this.ctx.font = "bold 20px Courier New";
+            this.ctx.fillStyle = "black";
+            this.ctx.fillText(this.currentText, 65, 90);
+            this.counter++;
+        }
+        else if (tempDirection == "returnToText")
         {
             //check button status to return the correct button
             this.counter = 0;

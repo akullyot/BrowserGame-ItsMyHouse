@@ -111,6 +111,7 @@ document.addEventListener("keydown", async function (e){
                 userSprite.xCoord = 273;
                 userSprite.yCoord = 246;
             }
+            stairSoundElement.play();
             playerAreaCanvas.floor = "transition"
             TextCanvas.rewriteText('returnToText');
             //TODO set all NPCs to their starting poistions
@@ -125,8 +126,27 @@ document.addEventListener("keydown", async function (e){
     //Used for rummaging a drawer or picking up an item
     else if (e.key == "e")
     {
-        
-       if (userSprite.byFurniture)
+       if (userSprite.Furnitureby == stereo)
+       {
+            //complete the quest and turn on the stereo
+                //update your progress bar
+                statsCanvas.progressCounter++;
+                statsCanvas.updateProgressBar();
+            
+                //bookquest
+                TextCanvas.currentTextKey = "dollQuest";
+                // -1 not 0 to make the rewriteText work correctly
+                TextCanvas.currentTextArrayIndex = -1;
+                TextCanvas.totalArrayIndex = allTexts[TextCanvas.currentTextKey].length;
+                //to make rewriting the text work 
+                TextCanvas.previousText = allTexts[TextCanvas.currentTextKey][0];
+                //reset the button
+                button.status = "progress";
+                TextCanvas.rewriteText();
+                stereoSoundElement.play();
+            
+       } 
+       else if (userSprite.byFurniture)
        {
             if(userSprite.Furnitureby.isOpenable)
             {
@@ -155,8 +175,6 @@ document.addEventListener("keydown", async function (e){
                     userSprite.furnitureHolding.isBeingDragged = false;
                     userSprite.furnitureHolding.checkIfDraggedFurnitureFarAway();
                     userSprite.furnitureHolding = null;
-                    
-
                 }
             }
             else 

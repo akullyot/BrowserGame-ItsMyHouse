@@ -1,4 +1,6 @@
-
+// Purpose       : create a canvas HTML element. This also includes functionality for displaying transition animations, such as stair movements or win/lsoe animations
+// Instantiations: PlayerAreaCanvas
+// ChildClasses  : ClickableCanvas,InventoryCanvas
 class Canvas
 {
     constructor(canvasID, width, height, floor)
@@ -6,17 +8,21 @@ class Canvas
         this.width           = width;
         this.height          = height;
         this.canvasID        = canvasID;
-        this.canvasElement   = null; //used once you instantiate the canvas
-        this.ctx             = null; //used once you instantiate the canvas 
-        this.floor           = floor; //used for switching playerarea canvas
+        //used once you instantiate the canvas
+        this.canvasElement   = null; 
+        //used once you instantiate the canvas 
+        this.ctx             = null; 
+        //used for switching playerarea canvas floor displays and transition/win/lose states
+        this.floor           = floor; 
         this.tileSize        = 32;
-        //for transitions 
+        //used in the actual creation of preset animations
         //sets the timer tracker for filling in the 
         this.transitionCount  = 0;
         this.transitionWidth  = 32;
         this.transitionHeight = 32;
         this.transitionFloor  = null;
     }
+    //Purpose: grab the canvas element from HTML is js and create a parametre for the context
     getCanvasMade()
     {
         this.canvasElement = document.getElementById(this.canvasID);
@@ -24,7 +30,8 @@ class Canvas
         this.canvasElement.width = this.width;
         this.canvasElement.height = this.height;
     }
-    //used when transitioning between floors
+    //Purpose: creating the actual animation used when transitioning between floors
+    //Note   : this is basic, could be improved
     transition()
     {
         //get correct floor to show 
@@ -32,12 +39,16 @@ class Canvas
         switch (playerAreaCanvas.transitionFloor)
         {
             case "firstFloor":
+                //Turn off the stereo just in case 
+                stereoSoundElement.pause();
                 backgroundImage = firstFloorBackground.imageElement;
                 break;
             case "secondFloor":
+                stereoSoundElement.pause();
                 backgroundImage = secondFloorBackground.imageElement;
                 break;           
             case "basement":
+                stereoSoundElement.pause();
                 backgroundImage = basementBackground.imageElement;
                 break;
         }
@@ -63,9 +74,12 @@ class Canvas
             this.ctx.fillRect(0,0,this.transitionWidth,this.transitionHeight);
             this.transitionCount++
         }
-
     }
 }
+
+// Purpose        : The most basic Image class.  All items drawn onto any canvas are included in this base class.
+// Instantiations :
+// ChildClasses   :
 class ImageClass 
 {
     constructor (src, xCoord, yCoord, height, width, canvasID )
@@ -106,7 +120,9 @@ class ImageClass
         }
     }
 }
-//TODO change name, it also includes pickupable items, also ideally extend the class
+// Purpose        :
+// Instantiations :
+// ChildClasses   : Note: this ideally should be extended but has not been due to time constraints/not the best plannign
 class InteractableItem extends ImageClass
 {
     constructor (src, xCoord, yCoord, height, width,isBreakable,isOpenable,isPickupItem,itemsInside)
@@ -130,6 +146,9 @@ class InteractableItem extends ImageClass
     }
     isClose(player)
     {
+        //helper function:
+        //Purpose: writing out all the text dialogue options because it is used both at the initial hitting and colliding back
+        //TODO helper function for the dialogue selection
         //use the proper hitbox dimensions
         let playerDimensions = player.getProperHitboxDimensions();
 
@@ -158,6 +177,19 @@ class InteractableItem extends ImageClass
             {
                 TextCanvas.rewriteText('pickingUpItem');
             }
+            //Specifically for the breaker box and stereo, they have custom messages. Ideally I would have changed the class system to compensate
+            else if (stereo.isBreakable)
+            {
+                TextCanvas.rewriteText("stereo")
+            }
+            else if (breakerBox.isBreakable)
+            {
+                TextCanvas.rewriteText("breakerBox")
+            }
+            else if (this.isBreakable)
+            {
+                TextCanvas.rewriteText("breakingItem")
+            }
         }
         else if (
             player.yCoord == player.previousYCoord && player.xCoord == player.previousXCoord &&
@@ -182,6 +214,18 @@ class InteractableItem extends ImageClass
                     else if (this.isPickupItem)
                     {
                         TextCanvas.rewriteText('pickingUpItem');
+                    }
+                    else if (stereo.isBreakable)
+                    {
+                        TextCanvas.rewriteText("stereo")
+                    }
+                    else if (breakerBox.isBreakable)
+                    {
+                        TextCanvas.rewriteText("BreakerBox")
+                    }
+                    else if (this.isBreakable)
+                    {
+                        TextCanvas.rewriteText("BreakingItem")
                     }
                 }
         }
@@ -297,25 +341,49 @@ class DraggableItem extends InteractableItem
         {
             this.drawFurniture(); 
             this.isNearby(userSprite);
-
         }
         
     }
     //Purpose: for the sake of quest completion check if the player dragged the element far enough away 
     checkIfDraggedFurnitureFarAway()
     {
-        //make sure you update the x and y to where it was dropped
-        if (statsCanvas.completedDraggingQuestCount < 2)
-        {
-            let xDifference = Math.abs(this.startingX - this.endingX);
-            let yDifference = Math.abs(this.startingY - this.endingY);
+        //first apply a boolean to the moved furniture itself if it has moved far enough
+        let xDifference = Math.abs(this.startingX - this.endingX);
+        let yDifference = Math.abs(this.startingY - this.endingY);
 
-            if (xDifference + yDifference > 100  && this.hasCompleted == false)
+        if (xDifference + yDifference > 100  && this.hasCompleted == false)
+        {
+            this.hasCompleted = true;
+        }
+
+        //Now check if they have done enough to complete a quest, and also check if they have already completed it
+        if (chairRightDown.hasCompleted && chairRightUp.hasCompleted)
+        {
+            if (!statsCanvas.completedDraggingQuestCount.includes("chairQuest"))
             {
-                statsCanvas.completedDraggingQuestCount++ 
-                this.hasCompleted == true
+                //add one to completion
+                questCompleteSoundElement.play();
+                //update your progress bar
+                statsCanvas.progressCounter++;
+                statsCanvas.updateProgressBar();
+                //they have completed the test and can move on
+                TextCanvas.currentTextKey = "turnOnRadioQuest";
+                // -1 not 0 to make the rewriteText work correctly
+                TextCanvas.currentTextArrayIndex = -1;
+                TextCanvas.totalArrayIndex = allTexts[TextCanvas.currentTextKey].length;
+                //to make rewriting the text work 
+                TextCanvas.previousText = allTexts[TextCanvas.currentTextKey][0];
+                button.status = "progress";
+                //setTimeout(questCompleteSoundElement.play(),1000);
+                TextCanvas.rewriteText();
+                statsCanvas.completedDraggingQuestCount.push("chairQuest");
             }
-            if (statsCanvas.completedDraggingQuestCount == 2)
+        }
+        //the else if helps with quest progression
+        //check specifically if the doll has been moved
+        if (doll.hasCompleted)
+        {
+            if (!statsCanvas.completedDraggingQuestCount.includes('dollQuest'))
             {
                 //add one to completion
                 questCompleteSoundElement.play();
@@ -324,20 +392,23 @@ class DraggableItem extends InteractableItem
                 statsCanvas.updateProgressBar();
 
                 //they have completed the test and can move on
-                TextCanvas.currentTextKey = "turnOnRadioQuest";
+                TextCanvas.currentTextKey = "maceQuest";
                 // -1 not 0 to make the rewriteText work correctly
                 TextCanvas.currentTextArrayIndex = -1;
                 TextCanvas.totalArrayIndex = allTexts[TextCanvas.currentTextKey].length;
                 //to make rewriting the text work 
                 TextCanvas.previousText = allTexts[TextCanvas.currentTextKey][0];
-    
+
                 button.status = "progress";
                 //setTimeout(questCompleteSoundElement.play(),1000);
                 TextCanvas.rewriteText();
+                statsCanvas.completedDraggingQuestCount.push("chairQuest");
             }
+
+        }
+
             //check if youve dragged the item far enough away
             //if they have 
-        }
     }
 }
 class MoveableImage extends ImageClass
@@ -515,149 +586,276 @@ class NonPlayableCharacter extends MoveableImage
                     sprite.xCoord = sprite.xCoord + sprite.speed;  
             }
         }
-        //notes for first floor movement
-        const pathOne = ([721,211],[721,316],[560,316],[560,197],[252,197],[252,113], [322,113],[322,218],[497,218], [497,211], [721,211]);//back to starting point and loop
-        const breakOffPoints = ([721,211]);//the starting point);
-        const pathTwo = ([721,211], [721,253], [784,253], [784,78], [730,78])
         //activate animation
         this.animateBoolean = true;
+        // For each character (defined by their floor locations here), they will have designated paths
+        // at the starting location for each, there will be a chance to switch paths 
+        // Note: because of the switches and how path movement works, rn it will only work if their speed is set to 1 or lower that will still hit everything (like 0.5,0.25,etc.. for instance)
         // there will be x many paths, where each one is a walk direction and a certain amount of steps, defined by 
         //going through path one 
-        switch (this.currentPathName)
+        switch (this.floor)
         {
-            case "pathOne":
-                if 
-                (
-                    (this.xCoord == 322 && this.yCoord == 113)
-                )
+            case "firstFloor":
+                switch (this.currentPathName)
                 {
+                    case "pathOne":
+                        if 
+                        (
+                            (this.xCoord == 322 && this.yCoord == 113)
+                        )
+                        {
 
-                    this.currentPathTrack = "down";
-                }
-                else if 
-                (
-                    (this.xCoord == 560 && this.yCoord == 316)||
-                    (this.xCoord == 252 && this.yCoord == 197) ||
-                    (this.xCoord == 497 && this.yCoord == 218) 
-                )
-                {
-                    this.currentPathTrack = "up";  
-                }
-                else if 
-                (
-                    (this.xCoord == 721 && this.yCoord == 316)||
-                    (this.xCoord == 560 && this.yCoord == 197)
-                )
-                {
-                    this.currentPathTrack = "left"
-                }
-                else if 
-                (
-                    (this.xCoord == 252 && this.yCoord == 113)||
-                    (this.xCoord == 322 && this.yCoord == 218) ||
-                    (this.xCoord == 497 && this.yCoord == 211) 
-                )
-                {
-                    this.currentPathTrack = "right"
-                }
-                //adding in pausing if shes by a kitchen appliance
-                else if 
-                    ( this.xCoord == 623 && this.yCoord == 211)
-                {
-                    if (Math.random() > 0.007)
-                    {
-                        this.currentPathTrack = "paused"
-                    }
-                    else
-                    {
-                        this.currentPathTrack = "right"
-                    }
-                }
-                //see if it switches to path two or not 
-                else if (this.xCoord == 721 && this.yCoord == 211)
-                {
-                    if (Math.random() > 0.5)
-                    {
-                        this.currentPathTrack = "down"
-                    }
-                    else
-                    {
-                        this.currentPathTrack = "down"
-                        this.yCoord++;
-                        this.currentPathName = "pathTwo"
-                    }
+                            this.currentPathTrack = "down";
+                        }
+                        else if 
+                        (
+                            (this.xCoord == 560 && this.yCoord == 316)||
+                            (this.xCoord == 252 && this.yCoord == 197) ||
+                            (this.xCoord == 497 && this.yCoord == 218) 
+                        )
+                        {
+                            this.currentPathTrack = "up";  
+                        }
+                        else if 
+                        (
+                            (this.xCoord == 721 && this.yCoord == 316)||
+                            (this.xCoord == 560 && this.yCoord == 197)
+                        )
+                        {
+                            this.currentPathTrack = "left"
+                        }
+                        else if 
+                        (
+                            (this.xCoord == 252 && this.yCoord == 113)||
+                            (this.xCoord == 322 && this.yCoord == 218) ||
+                            (this.xCoord == 497 && this.yCoord == 211) 
+                        )
+                        {
+                            this.currentPathTrack = "right"
+                        }
+                        //adding in pausing if shes by a kitchen appliance
+                        else if 
+                            ( this.xCoord == 623 && this.yCoord == 211)
+                        {
+                            if (Math.random() > 0.007)
+                            {
+                                this.currentPathTrack = "paused"
+                            }
+                            else
+                            {
+                                this.currentPathTrack = "right"
+                            }
+                        }
+                        //see if it switches to path two or not 
+                        else if (this.xCoord == 721 && this.yCoord == 211)
+                        {
+                            if (Math.random() > 0.5)
+                            {
+                                this.currentPathTrack = "down"
+                            }
+                            else
+                            {
+                                this.currentPathTrack = "down"
+                                this.yCoord++;
+                                this.currentPathName = "pathTwo"
+                            }
+                        }
+                        break;
+                    case "pathTwo" :
+                        if 
+                        (
+                            (this.xCoord == 984 && this.yCoord == 253) ||
+                            (this.xCoord == 691 && this.yCoord == 78) ||
+                            (this.xCoord == 785  && this.yCoord == 82)
+
+                        )
+                        {
+
+                            this.currentPathTrack = "down";
+                        }
+                        else if 
+                        (
+                            (this.xCoord == 784 && this.yCoord == 253)||
+                            (this.xCoord == 720 && this.yCoord == 317)
+
+                        )
+                        {
+                            this.currentPathTrack = "up";  
+                        }
+                        else if 
+                        (
+                            (this.xCoord == 784 && this.yCoord == 78) ||
+                            (this.xCoord == 785 && this.yCoord == 317)
+                        )
+                        {
+                            this.currentPathTrack = "left"
+                        }
+                        else if 
+                        (
+                            (this.xCoord == 721 && this.yCoord == 253)||
+                            (this.xCoord == 691 && this.yCoord == 82) ||
+                            (this.xCoord == 720  && this.yCoord == 211)
+
+                        )
+                        {
+                            this.currentPathTrack = "right"
+                        }
+                        //adding in pausing if shes by the toiler appliance
+                        else if 
+                            ( this.xCoord == 784 && this.yCoord == 80 )
+                        {
+                            if (Math.random() > 0.007)
+                            {
+                                this.currentPathTrack = "paused"
+                            }
+                            else
+                            {
+                                this.currentPathTrack = "up"
+                            }
+                        }
+                        //see if it switches to path two or not 
+                        else if (this.xCoord == 721 && this.yCoord == 211)
+                        {
+                            if (Math.random() > 0.7)
+                            {
+                                this.currentPathTrack = "down"
+                            }
+                            else
+                            {
+
+                                this.currentPathName = "pathOne"
+                                this.currentPathTrack = "down"
+                                this.yCoord++;
+
+                            }
+                        }
+                        break;
                 }
                 break;
-            case "pathTwo" :
-                if 
-                (
-                    (this.xCoord == 984 && this.yCoord == 253) ||
-                    (this.xCoord == 691 && this.yCoord == 78) ||
-                    (this.xCoord == 785  && this.yCoord == 82)
-
-                )
+            case "secondFloor":
+                switch (this.currentPathName)
                 {
+                    case "pathOne":
+                        if 
+                        (
 
-                    this.currentPathTrack = "down";
-                }
-                else if 
-                (
-                    (this.xCoord == 784 && this.yCoord == 253)||
-                    (this.xCoord == 720 && this.yCoord == 317)
+                            (this.xCoord == 672 && this.yCoord == 127) || //this will actually pause to have a chance to sleep
+                            (this.xCoord == 749 && this.yCoord == 183) ||
+                            (this.xCoord == 525 && this.yCoord == 197)
+                        )
+                        {
 
-                )
-                {
-                    this.currentPathTrack = "up";  
-                }
-                else if 
-                (
-                    (this.xCoord == 784 && this.yCoord == 78) ||
-                    (this.xCoord == 785 && this.yCoord == 317)
-                )
-                {
-                    this.currentPathTrack = "left"
-                }
-                else if 
-                (
-                    (this.xCoord == 721 && this.yCoord == 253)||
-                    (this.xCoord == 691 && this.yCoord == 82) ||
-                    (this.xCoord == 720  && this.yCoord == 211)
+                            this.currentPathTrack = "down";
+                        }
+                        else if 
+                        (
+                            (this.xCoord == 623 && this.yCoord == 218) ||
+                            (this.xCoord == 721  && this.yCoord == 309)
+                        )
+                        {
+                            this.currentPathTrack = "up";  
+                        }
+                        else if 
+                        (
+                            (this.xCoord == 749 && this.yCoord == 309) ||
+                            (this.xCoord == 721 && this.yCoord == 197)
+                        )
+                        {
+                            this.currentPathTrack = "left"
+                        }
+                        else if 
+                        (
+                            (this.xCoord == 623 && this.yCoord == 127) ||
+                            (this.xCoord == 672  && this.yCoord == 183) ||
+                            (this.xCoord == 462  &&  this.yCoord == 218)
+                        )
+                        {
+                            this.currentPathTrack = "right"
+                        }
+                        //see if it switches to path two or not 
+                        else if (this.xCoord == 525 && this.yCoord == 218)
+                        {
+                            if (Math.random() > 0.99)
+                            {
+                                this.currentPathTrack = "right"
+                            }
+                            else
+                            {
 
-                )
-                {
-                    this.currentPathTrack = "right"
-                }
-                //adding in pausing if shes by the toiler appliance
-                else if 
-                    ( this.xCoord == 784 && this.yCoord == 80 )
-                {
-                    if (Math.random() > 0.007)
-                    {
-                        this.currentPathTrack = "paused"
-                    }
-                    else
-                    {
-                        this.currentPathTrack = "up"
-                    }
-                }
-                //see if it switches to path two or not 
-                else if (this.xCoord == 721 && this.yCoord == 211)
-                {
-                    if (Math.random() > 0.7)
-                    {
-                        this.currentPathTrack = "down"
-                    }
-                    else
-                    {
+                                this.currentPathTrack = "left"
+                                this.xCoord--;
+                                this.currentPathName = "pathTwo"
+                            }
+                        }
+                        break;
+                    case "pathTwo" :
+                        if 
+                        (
 
-                        this.currentPathName = "pathOne"
-                        this.currentPathTrack = "down"
-                        this.yCoord++;
+                            (this.xCoord == 301 && this.yCoord == 120) ||
+                            (this.xCoord == 147 && this.yCoord == 183 ) ||
+                            (this.xCoord == 210 && this.yCoord == 246 )
+           
 
-                    }
+                        )
+                        {
+
+                            this.currentPathTrack = "down";
+                        }
+                        else if 
+                        (
+                            (this.xCoord == 406 && this.yCoord == 218 ) ||
+                            (this.xCoord == 462 && this.yCoord == 316 ) ||
+                            (this.xCoord == 525 && this.yCoord == 274)
+
+                        )
+                        {
+                            this.currentPathTrack = "up";  
+                        }
+                        else if 
+                        (
+                            (this.xCoord == 406 && this.yCoord == 120) ||
+                            (this.xCoord == 301 && this.yCoord == 183)
+
+                        )
+                        {
+                            this.currentPathTrack = "left"
+                        }
+                        else if 
+                        (
+                            (this.xCoord == 147 && this.yCoord == 246 ) ||
+                            (this.xCoord == 210 && this.yCoord == 316 ) ||
+                            (this.xCoord == 462 && this.yCoord == 274 )
+           
+                        )
+                        {
+                            this.currentPathTrack = "right"
+                        }
+                        //see if it switches to path two or not 
+                        else if (this.xCoord == 525 && this.yCoord == 218)
+                        {
+                            if (Math.random() > 0.7)
+                            {
+                                this.currentPathTrack = "left"
+                            }
+                            else
+                            {
+
+                                this.currentPathName = "pathOne"
+                                this.currentPathTrack = "right"
+                                this.xCoord++;
+
+                            }
+                        }
+                        break;
                 }
+                break;
+            case "basement":
+
                 break;
         }
+
+
         // when the path is pointing downwards
         if 
         ( this.currentPathTrack == "down")
@@ -1194,7 +1392,7 @@ userSprite.createImageElement();
 const ladyNPCSprite = new NonPlayableCharacter("assets/spriteSheets/ladySpriteSheet.png",721,211,0,0,64,64,"playerArea","pathOne", "down", "firstFloor");
 ladyNPCSprite.createImageElement();
 
-const manNPCSprite = new NonPlayableCharacter("assets/spriteSheets/manSpriteSheet.png",721,211,0,0,64,64,"playerArea","pathOne", "down", "secondFloor"); 
+const manNPCSprite = new NonPlayableCharacter("assets/spriteSheets/manSpriteSheet.png",525,218,0,0,64,64,"playerArea","pathOne", "down", "secondFloor"); 
 manNPCSprite.createImageElement();
 
 const childNPCSprite = new NonPlayableCharacter("assets/spriteSheets/childSpriteSheet.png",721,211,0,0,64,64,"playerArea","pathOne", "down", "basement");
@@ -1245,9 +1443,21 @@ toilet.createImageElement();
 
 const book = new InteractableItem("assets/questItems/book.png", 53,310,40,32, false, false, true, ['book']);
 book.createImageElement();
- //TODO not sure if i actually need this
-//purpose: helps with slotting and picking up inventory items
-//allInventoryItems["book"] = book;
+// Second Floor
+
+const doll = new DraggableItem("assets/questItems/doll.png", 200,220, 32,32);
+doll.createImageElement();
+
+const dresserSecond  = new InteractableItem('assets/firstFloor/Items/dresser.png', 480, 170, 40,40, true,true,false, ["candy", "mace"]);
+dresserSecond.createImageElement();
+
+const stereo = new InteractableItem('assets/secondFloor/Items/speaker.png', 355, 80, 60,30, true,false,false);
+stereo.createImageElement();
+const mirror = new InteractableItem('assets/secondFloor/Items/mirror.png', 700, 258, 32,32, true,false,false);
+mirror.createImageElement();
+
+
+
 
 
 function updatePlayerArea() 
@@ -1282,15 +1492,19 @@ function updatePlayerArea()
             toilet.drawFurniture();
             toilet.isClose(userSprite);
             // add in items
-            book.drawFurniture();
-            book.isClose(userSprite);
+            if (book.itemsInside.length !== 0)
+            {
+                book.drawFurniture();
+                book.isClose(userSprite);
+            }
            
         
             //add in NPCs
-            //ladyNPCSprite.animate();
-            //ladyNPCSprite.path();
-            //ladyNPCSprite.detectPlayerNearby();
-            //add in the user
+            ladyNPCSprite.animate();
+            ladyNPCSprite.path();
+            ladyNPCSprite.detectPlayerNearby();
+
+            //add in the user 
             userSprite.animate();
             //darken behind the walls
             firstFloorBackground.darkenBehindTheWalls();
@@ -1298,22 +1512,37 @@ function updatePlayerArea()
         case 'basement':
             basementBackground.addmap();
             //add in NPCs
-            //childNPCSprite.animate();
-            //childNPCSprite.path();
-            //childNPCSprite.detectPlayerNearby();
+            childNPCSprite.animate();
+            childNPCSprite.path();
+            childNPCSprite.detectPlayerNearby();
             userSprite.animate();
             //darken behind the walls
-            firstFloorBackground.darkenBehindTheWalls();
+            basementBackground.darkenBehindTheWalls();
             break;
         case 'secondFloor':
             secondFloorBackground.addmap();
+            //add in furniture
+            //rummagable
+            dresserSecond.drawFurniture();
+            dresserSecond.isClose(userSprite);
+            //breakable (stereo is a special type of breakable)
+              stereo.drawFurniture();
+              stereo.isClose(userSprite);
+              mirror.drawFurniture();
+              mirror.isClose(userSprite);
+
+            //pickupable
+            doll.drawDraggableFurniture();
+           
+
             //add in NPCs
-            //manNPCSprite.animate();
-            //manNPCSprite.path();
-            //manNPCSprite.detectPlayerNearby();
+            manNPCSprite.animate();
+            manNPCSprite.path();
+            manNPCSprite.detectPlayerNearby();
             userSprite.animate();
+
             //darken behind the walls
-            firstFloorBackground.darkenBehindTheWalls();
+            secondFloorBackground.darkenBehindTheWalls();
             break;
         case "transition" :
             playerAreaCanvas.transition();
