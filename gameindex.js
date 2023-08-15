@@ -413,9 +413,12 @@ class DraggableItem extends InteractableItem
 }
 class MoveableImage extends ImageClass
 {
-    constructor (src, xCoord, yCoord,srcX,srcY,height,width,canvasID,speed)
+    constructor (src,xCoord, yCoord,srcX,srcY,height,width,canvasID,speed)
     {
         super (src, xCoord, yCoord,height,width,canvasID);
+        //adding in the sprite sheet for when youre holding a weapon
+        this.weaponImageElement        = null;
+        //basic booleans
         this.speed                     = speed;
         this.hasWeapon                 = false;
         this.hasCandle                 = false;
@@ -448,6 +451,12 @@ class MoveableImage extends ImageClass
         //turns off NPC sprite detection
         this.insideWall                = null;
     }
+    createWeaponImageElement()
+    {
+        let image = new Image();
+        image.src = "assets/spriteSheets/playerSpriteSheetMace.png";
+        this.weaponImageElement = image;
+    }
     //Purpose: Move through the sprite sheet of your character to animate movement correctly
     //         Variable information: 1.animateBoolean is periodically turned off in timeouts to prevent the infinite loop animations from going wild
     //                               or when an NPC pauses
@@ -456,6 +465,22 @@ class MoveableImage extends ImageClass
     //                                        
     animate()
     {
+        if (this == userSprite)
+        {
+            if (this.hasWeapon)
+            {
+                var src = this.weaponImageElement;
+            }
+            else
+            {
+                var src = this.imageElement;
+            }
+        }
+        else
+        {
+            var src = this.imageElement;
+        }
+
         if (this.animateBoolean)
         {
             //Keep track of the number of animation frames to choose the correct sprite
@@ -475,7 +500,7 @@ class MoveableImage extends ImageClass
         //    this.srcX = 4 * this.width; // pauses them as cowering down
         //}
             //image, srcX, srcY, srcWidth, srcHeight, destX, destY, destWidth, destHeight
-            playerAreaCanvas.ctx.drawImage(this.imageElement, this.srcX, this.srcY, this.width, this.height, this.xCoord, this.yCoord, this.width, this.height);
+            playerAreaCanvas.ctx.drawImage(src, this.srcX, this.srcY, this.width, this.height, this.xCoord, this.yCoord, this.width, this.height);
             this.framesDrawn++;
             //Note: I left this here but this explains the actual collision detection, turn this one to see where you are actually looking for collisions
             //playerAreaCanvas.ctx.fillRect((this.xCoord + 16), (this.yCoord +10), 30, 58);
@@ -1424,8 +1449,10 @@ const playerAreaCanvas = new Canvas ("playerArea", fullAreaWidth, fullAreaHeight
 playerAreaCanvas.getCanvasMade();
 
 //Add in the image of the user Sprite
-const userSprite = new MoveableImage("assets/spriteSheets/playerspritesheet.png",56,7,0,0,64,64,"playerArea",7);
+const userSprite = new MoveableImage("assets/spriteSheets/playerspritesheet.png", 56,7,0,0,64,64,"playerArea",7);
 userSprite.createImageElement();
+userSprite.createWeaponImageElement();
+
 
 //Add in the images of the NPC sprites
 const ladyNPCSprite = new NonPlayableCharacter("assets/spriteSheets/ladySpriteSheet.png",721,211,0,0,64,64,"playerArea","pathOne", "down", "firstFloor");
@@ -1554,6 +1581,7 @@ function updatePlayerArea()
             childNPCSprite.animate();
             childNPCSprite.path();
             childNPCSprite.detectPlayerNearby();
+
             userSprite.animate();
             //darken behind the walls
             basementBackground.darkenBehindTheWalls();
@@ -1578,6 +1606,7 @@ function updatePlayerArea()
             manNPCSprite.animate();
             manNPCSprite.path();
             manNPCSprite.detectPlayerNearby();
+            //add in the user
             userSprite.animate();
 
             //darken behind the walls

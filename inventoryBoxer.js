@@ -209,7 +209,7 @@ class InventoryCanvas extends Canvas
         {
             '0' : [92,33],
             '1' : [123.1,33],
-            '2' : [164.1,33.5],
+            '2' : [164.1, 33.5],
             '3' : [194.1,33.5],
             '4' : [224.1, 33.5],
             '5' : [254.1,33.5],
@@ -227,58 +227,58 @@ class InventoryCanvas extends Canvas
             case 2:
                 //note: we have some sprite size differences because I suck at cropping. I tried to crop correctly but couldnt
                 //so im doing weird jiggling of the coordinate and scaling here 
-                fullbar.xCoord = barCoords[0][0]+2;
+                fullbar.xCoord = barCoords[0][0]+ 4;
                 fullbar.yCoord = barCoords[0][1] + 7;
                 fullbar.drawImage();
                 break;
             case 3:
-                halfbar.xCoord = barCoords[1][0];
+                halfbar.xCoord = barCoords[1][0] +2;
                 halfbar.yCoord = barCoords[1][1];
                 halfbar.drawImage();
                 break;
             case 4:
-                fullbar.xCoord = barCoords[1][0]+2;
+                fullbar.xCoord = barCoords[1][0] + 5;
                 fullbar.yCoord = barCoords[1][1] + 7;
                 fullbar.drawImage();
                 break;
             case 5:
-                halfbar.xCoord = barCoords[2][0];
-                halfbar.yCoord = barCoords[2][1];
+                halfbar.xCoord = barCoords[2][0] -5;
+                halfbar.yCoord = barCoords[2][1] - 0.5;
                 halfbar.drawImage();
                 break;
             case 6:
-                fullbar.xCoord = barCoords[2][0]+2;
-                fullbar.yCoord = barCoords[2][1] + 7;
+                fullbar.xCoord = barCoords[2][0] -2.5;
+                fullbar.yCoord = barCoords[2][1] + 6.5;
                 fullbar.drawImage();
                 break;
             case 7:
-                halfbar.xCoord = barCoords[3][0];
-                halfbar.yCoord = barCoords[3][1];
+                halfbar.xCoord = barCoords[3][0] -5;
+                halfbar.yCoord = barCoords[3][1] -0.5;
                 halfbar.drawImage();
                 break;
             case 8:
-                fullbar.xCoord = barCoords[3][0]+2;
-                fullbar.yCoord = barCoords[3][1] + 7;
+                fullbar.xCoord = barCoords[3][0];
+                fullbar.yCoord = barCoords[3][1] +6.25;;
                 fullbar.drawImage();
                 break;
             case 9:
-                halfbar.xCoord = barCoords[4][0];
-                halfbar.yCoord = barCoords[4][1];
+                halfbar.xCoord = barCoords[4][0] -1;
+                halfbar.yCoord = barCoords[4][1] - 0.5;
                 halfbar.drawImage();
                 break;
             case 10:
-                fullbar.xCoord = barCoords[4][0]+2;
-                fullbar.yCoord = barCoords[4][1] + 7;
+                fullbar.xCoord = barCoords[4][0] + 2.2;
+                fullbar.yCoord = barCoords[4][1] + 6.25;
                 fullbar.drawImage();
                 break;
             case 11:
-                halfbar.xCoord = barCoords[5][0];
-                halfbar.yCoord = barCoords[5][1];
+                halfbar.xCoord = barCoords[5][0] -0.25;
+                halfbar.yCoord = barCoords[5][1] - 0.75;
                 halfbar.drawImage();
                 break;
             case 12:
-                fullbar.xCoord = barCoords[5][0];
-                fullbar.yCoord = barCoords[5][1];
+                fullbar.xCoord = barCoords[5][0] +2;
+                fullbar.yCoord = barCoords[5][1] + 6.5;
                 fullbar.drawImage();
                 break;
         }
