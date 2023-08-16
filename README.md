@@ -1,6 +1,6 @@
 # BrowserGame-ItsMyHouse
 
-##Description
+## Description
 It's My House is a quest based browser game in which the player completes a series of quests to scare the current residents out of their recently foreclosed house, such that they can continue living there.  The idea is based on the movie Within (2016, director Phil Claydon). The player lives within the walls, and must avoid detection by the residents while carrying out the quests they find in a Description of Paranormal Encounters book.
 
  
@@ -12,14 +12,14 @@ It's My House is a quest based browser game in which the player completes a seri
 
 
 
-##Image and Audio Credits:
-  ###Audio:
+## Image and Audio Credits:
+  ### Audio:
       1.Text Dialogue Sound Effects Provided By Chris Logsdon: https://chrislsound.itch.io/text-dialogue-sfx-pack 
       2.Ambient Horror Music Provided By DHSFX : https://dhsfx.co.uk/
       3.Basic SFX Sound Effects Provided By Davit Masia:   https://kronbits.itch.io/freesfx/download/
                 eyJpZCI6NDg2NTIyLCJleHBpcmVzIjoxNjkyMDE2MjQ2fQ%3d%3d.OYaaaIoJmUkheaDFsSjxOpxuSv4%3d
 
-  ###Images:
+  ### Images:
     1.Tilesets provided by Modern Interiors: RPG Tileset : https://limezu.itch.io/moderninteriors
     2.Sprite Characters provided by LPC Sprite Generator and the following artists:
             Authors: bluecarrot16, Benjamin K. Smith (BenCreating), Evert, Eliza Wyatt (ElizaWy), TheraHedwig, MuffinElZangano, Durrani, Johannes Sj?    
