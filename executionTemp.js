@@ -286,6 +286,8 @@ document.addEventListener("keydown", async function (e){
                 whisperSoundElement.play();
                 if (!whisperVent.hasCompleted)
                 {
+                    statsCanvas.progressCounter++;
+                    statsCanvas.updateProgressBar();
                     TextCanvas.currentTextKey = "toiletBreakQuest";
                     // -1 not 0 to make the rewriteText work correctly
                     TextCanvas.currentTextArrayIndex = -1;
@@ -295,8 +297,29 @@ document.addEventListener("keydown", async function (e){
                     //reset the button
                     button.status = "progress";
                     TextCanvas.rewriteText();
-                    whisperVent.hasCompleted = "true"
+                    whisperVent.hasCompleted = true;
+                    questCompleteSoundElement.play();
                 }
+            }
+        }
+        else if (userSprite.bySleeper)
+        {
+            whisperSoundElement.play();
+            if (!userSprite.hasCompleteSleepQuest)
+            {
+                statsCanvas.progressCounter++;
+                statsCanvas.updateProgressBar();
+                TextCanvas.currentTextKey = "sprayPaintQuest";
+                // -1 not 0 to make the rewriteText work correctly
+                TextCanvas.currentTextArrayIndex = -1;
+                TextCanvas.totalArrayIndex = allTexts[TextCanvas.currentTextKey].length;
+                //to make rewriting the text work 
+                TextCanvas.previousText = allTexts[TextCanvas.currentTextKey][0];
+                //reset the button
+                button.status = "progress";
+                TextCanvas.rewriteText();
+                userSprite.hasCompleteSleepQuest = true
+                questCompleteSoundElement.play();
             }
         }
     }

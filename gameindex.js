@@ -602,6 +602,9 @@ class MoveableImage extends ImageClass
         this.usingDoor                 = null;
         //turns off NPC sprite detection
         this.insideWall                = null;
+        //in the penultimate quest, used to determine when the player steps away from the sleeping man and if it was completed
+        this.bySleeper                 = false;
+        this.hasCompleteSleepQuest     = false;
     }
     createWeaponImageElement()
     {
@@ -707,6 +710,19 @@ class MoveableImage extends ImageClass
                     break;
             }
     }
+    // Purpose: called on the second floor to make sure that the text rewriting to the by sleeper option turns off if the npc wakes up before you move
+    makeSureBySleeperUpdates()
+    {
+        if ( manNPCSprite.xCoord !== 672 && manNPCSprite.yCoord !== 87)
+        {
+            if (this.bySleeper)
+            {
+                TextCanvas.rewriteText('returnToText');
+                TextCanvas.hasbeenRewritten = false;
+                userSprite.bySleeper = false;
+            }
+        }
+    }
 }
 // Purpose        : Holds all functions and parametres associated with any NPC. 
 // Instantiations : ladyNPCSprite,manNPCSprite,childNPCSprite
@@ -744,6 +760,8 @@ class NonPlayableCharacter extends MoveableImage
         this.previousXCoord            = null;
         this.previousYCoord            = null;
         this.heightAndWidthAllowance   = 30;  
+        //used for the sleeper on the second floor
+        this.sleepingCount             = 0;
     }
     path()
     {
@@ -919,8 +937,6 @@ class NonPlayableCharacter extends MoveableImage
                     case "pathOne":
                         if 
                         (
-
-                            (this.xCoord == 672 && this.yCoord == 127) || //this will actually pause to have a chance to sleep
                             (this.xCoord == 749 && this.yCoord == 183) ||
                             (this.xCoord == 525 && this.yCoord == 197)
                         )
@@ -953,6 +969,39 @@ class NonPlayableCharacter extends MoveableImage
                         {
                             this.currentPathTrack = "right"
                         }
+                        else if (this.xCoord == 672 && this.yCoord == 127) 
+                        {
+                            if (this.sleepingCount > 700)
+                            {
+                                this.currentPathTrack = "down";
+                                this.sleepingCount = 0;
+                            }
+                            else if (Math.random() > 0.005)
+                            {
+                                this.currentPathTrack = "paused"
+                                this.yCoord = this.yCoord - 40;
+                            }
+                            else
+                            {
+                                this.currentPathTrack = "down"
+                            }
+                        }
+                        else if (this.xCoord == 672 && this.yCoord == 87) 
+                        {
+                            this.sleepingCount++
+                            if (this.sleepingCount > 700)
+                            {
+                                this.currentPathTrack = "down"
+                            }
+                            else
+                            {
+                                this.currentPathTrack = "paused"
+                            }
+
+                            
+                        }
+
+
                         //see if it switches to path two or not 
                         else if (this.xCoord == 525 && this.yCoord == 218)
                         {
@@ -1143,9 +1192,36 @@ class NonPlayableCharacter extends MoveableImage
     //Purpose: if the player gets within 80 pixels of the player, lose a heart
     detectPlayerNearby()
     {
+        //Note: im not correcting the actual player dimensions because the wiggle room of the transparency makes it more reasonable in this case
         //collision detection when within like, 5 player widths and heights of a player
         const player = userSprite;
-        if (
+        //only for the male NPC sprite upstairs, if he is asleep all detection is off and put in a rewrite text option
+        if ( manNPCSprite.xCoord == 672 && manNPCSprite.yCoord == 87)
+        {
+            if (
+                this.xCoord < player.xCoord + player.width  &&
+                this.xCoord + this.width > player.xCoord  &&
+                this.yCoord < player.yCoord + player.height &&
+                (this.yCoord + this.height) > player.yCoord
+                )
+            {
+                //write in the text
+                TextCanvas.hasbeenRewritten = true;
+                TextCanvas.rewriteText('bySleeper');
+                userSprite.bySleeper = true;
+            }
+            //TODO you also need to turn it off if he moves, using the userSprites makeSurebySleeperOff() 
+            else if (userSprite.bySleeper)
+            {
+                if (TextCanvas.hasbeenRewritten)
+                {
+                    TextCanvas.rewriteText('returnToText');
+                    TextCanvas.hasbeenRewritten = false;
+                    userSprite.bySleeper = false;
+                }
+            }
+        }
+        else if (
             this.xCoord < player.xCoord + player.width  &&
             this.xCoord + this.width > player.xCoord  &&
             this.yCoord < player.yCoord + player.height &&
@@ -1154,7 +1230,7 @@ class NonPlayableCharacter extends MoveableImage
         {
             if (!userSprite.insideWall)
             {
-                startledDialog.xCoord = (this.xCoord + 32);
+                startledDialog.xCoord = (this.xCoord + 32); 
                 startledDialog.yCoord = this.yCoord;
                 startledDialog.drawImage()
                 if (this.previousTrack == null)
@@ -1169,6 +1245,7 @@ class NonPlayableCharacter extends MoveableImage
                 this.scaredState = true;
             }
         }
+        //Purpose: shows a warning dialogue if the player is nearby
         else if
         (
             this.xCoord - 200 < player.xCoord + (player.width -player.heightAndWidthAllowance)  &&

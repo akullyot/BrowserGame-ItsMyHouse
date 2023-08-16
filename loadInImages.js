@@ -216,6 +216,7 @@ function updatePlayerArea()
             //add in NPCs
             manNPCSprite.animate();
             manNPCSprite.path();
+            //this one has a sleeping function that turns off player detection while asleep 
             manNPCSprite.detectPlayerNearby();
             //add in the user
             userSprite.animate();

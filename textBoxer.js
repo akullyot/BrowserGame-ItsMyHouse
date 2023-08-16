@@ -10,9 +10,9 @@ const allTexts =
     'smashMirrorQuest'    : ["Quest 6 complete!", "Poltergeists also appatently really hate reflections", "I should use the mace I just picked up to smash the mirror in the bedroom"],
     'breakerBoxQuest'     : ["Quest 7 complete!", "Chapter 2: Ghosts", "Ghosts are also able to manipulate electricity,", "Especially the lights.","I should go downstairs and turn off the breaker box,","causing the lights to flicker."],
     'whisperQuest'        : ["Quest 8 complete!", "According to Chapter 2, ghosts sometimes try to communicate with the living", "I should whisper from behind the vent in the basement wall,", "when someone walks by."],
-    'toiletBreakQuest'    : ["Quest 9 complete!"],
-    'sleepingQuest'       : ["Quest 10 complete!"],
-    'sprayPaintQuest'     : ["Quest 11 complete!"],
+    'toiletBreakQuest'    : ["Quest 9 complete!", "According to Chapter 2, ghosts can also be violent", "I should go to the main floor and break the toilet"],
+    'sleepingQuest'       : ["Quest 10 complete!", "According to chapter 2, ghosts will interact", "with people while sleeping", "Im sure I could sneak to the man upstairs and scare him while sleeping." ],
+    'sprayPaintQuest'     : ["Quest 11 complete!", "Chapter 3: The History of Ghosts", "According to this chapter, ghosts tend to manifest", "In areas where the occult has occured", "I should find some paint and draw an occult sigil"],
     'sigilQuest'          : ["After countless scares, you perform the coup de grâce and draw an occult symbol on the floor", "The homeowners find it, are terrified, and pack their bags immediately.", "Congratulations, the house is yours again!", "That is, until the next family moves in...."],
     'lost'                : ["Finally, the family caught on and the police were called.", "Not just have you lost your house, but you have lost your freedom."]
 }
@@ -66,7 +66,8 @@ const allPlayerOptions =
     'breakBox'              : "Press e to flicker the lights",
     'breakingItem'          : "Press e to smash the object",
     'noWeapon'              : "I need a weapon before I can smash this object.",
-    'whisper'               : "Press z to whisper"
+    'whisper'               : "Press z to whisper",
+    'bySleeper'             : "Press z to scare the sleeper"
 }
 //Purpose            : extends the Canvas class to include clickable areas and buttons. This also holds all the text rewriting functionality.
 // All instantiations: TextCanvas
@@ -320,6 +321,22 @@ class ClickableCanvas extends Canvas
                 this.previousText = this.currentText; 
             }
             this.currentText = allPlayerOptions.whisper;
+            this.ctx.clearRect(0,0,this.width,this.height);
+            textBackground.drawImage();
+            this.ctx.font = "bold 20px Courier New";
+            this.ctx.fillStyle = "black";
+            this.ctx.fillText(this.currentText, 65, 90);
+            this.counter++;
+        }
+        else if (tempDirection == "bySleeper")
+        {
+            //first keep track of previous text 
+            if (this.counter == 0)
+            {
+                this.previousText = this.currentText; 
+            }
+            //dont draw a button
+            this.currentText = allPlayerOptions.bySleeper;
             this.ctx.clearRect(0,0,this.width,this.height);
             textBackground.drawImage();
             this.ctx.font = "bold 20px Courier New";
