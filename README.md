@@ -1,5 +1,5 @@
 # BrowserGame-ItsMyHouse
-
+Milestone Project 1 for University of Chicago's Software Development Bootcamp
 ## Description
 It's My House is a quest based browser game in which the player completes a series of quests to scare the current residents out of their recently foreclosed house, such that they can continue living there.  The idea is based on the movie Within (2016, director Phil Claydon). The player lives within the walls, and must avoid detection by the residents while carrying out the quests they find in a Description of Paranormal Encounters book.
 
