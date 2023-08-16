@@ -220,21 +220,9 @@ class InventoryCanvas extends Canvas
                 //update your progress bar
                 this.progressCounter++;
                 this.updateProgressBar();
-
-                //bookquest
-                TextCanvas.currentTextKey = "sigilQuest";
-                // -1 not 0 to make the rewriteText work correctly
-                TextCanvas.currentTextArrayIndex = -1;
-                TextCanvas.totalArrayIndex = allTexts[TextCanvas.currentTextKey].length;
-                //to make rewriting the text work 
-                TextCanvas.previousText = allTexts[TextCanvas.currentTextKey][0];
-
-                button.status = "progress";
-                //setTimeout(questCompleteSoundElement.play(),1000);
-                TextCanvas.rewriteText();
-
                 //go to the ending screen
-                playerAreaCanvas.floor = "won";
+                playerAreaCanvas.floor = "transition";
+                playerAreaCanvas.transitionFloor = "won";
             }
         }
         else

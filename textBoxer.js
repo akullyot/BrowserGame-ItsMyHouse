@@ -9,7 +9,7 @@ const allTexts =
     'maceQuest'           : ["Quest 5 complete!", "Poltergeists are also extrememly violent and known to smash items", "I should find an object with which I can smash things.", "Maybe upstairs they have some sort of self defense object."],
     'smashMirrorQuest'    : ["Quest 6 complete!", "Poltergeists also apparently are very adverse to mirrors", "I should use the mace I just picked up to smash the mirror in the bedroom"],
     'breakerBoxQuest'     : ["Quest 7 complete!", "Chapter 2: Ghosts", "Ghosts are also able to manipulate electricity,", "Especially the lights.","I should go downstairs and turn off the breaker box,","causing the lights to flicker."],
-    'whisperQuest'        : ["Quest 8 complete!", "According to Chapter 2, ghosts sometimes try to communicate with the living", "I should whisper from behind the vent in the basement wall,", "when someone walks by."],
+    'whisperQuest'        : ["Quest 8 complete!", "According to Chapter 2, ghosts sometimes try to communicate with the living", "I should whisper from behind the vent in the basement wall,", "when someone walks by, making them think there is a ghost."],
     'toiletBreakQuest'    : ["Quest 9 complete!", "According to Chapter 2, ghosts can also be violent", "I should go to the main floor and break the toilet"],
     'sleepingQuest'       : ["Quest 10 complete!", "According to chapter 2, ghosts will interact", "with people while sleeping", "Im sure I could sneak to the man upstairs and scare him while sleeping." ],
     'sprayPaintQuest'     : ["Quest 11 complete!", "Chapter 3: The History of Ghosts", "According to this chapter, ghosts tend to manifest", "In areas where the occult has occured", "I should find some paint and draw an occult sigil"],
@@ -18,7 +18,7 @@ const allTexts =
 }
 //Purpose: for the sake of linear quest progression, keep track of if a quest has been completed. If you do it out of order, youll just have to redo the quest, if applicable. 
 //         If not, use the second boolean to then see if you have already done it. If it doesnt apply, the value will be null.
-//TODO this hasnt been implemented at all yet
+//TODO this hasnt been implemented at all yet, they can do in essentially any order (except the last quest)
 const completionTracker =
 {
     'starting'            : [false,false],

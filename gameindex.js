@@ -54,7 +54,7 @@ class Canvas
             case "won":
                 stereoSoundElement.pause();
                 backgroundMusicElement.pause();
-                backgroundImage = wonBackground.imageElement;
+                backgroundImage = winBackground.imageElement;
                 TextCanvas.currentTextKey = "sigilQuest";
                 TextCanvas.currentTextArrayIndex = -1;
                 TextCanvas.totalArrayIndex = allTexts[TextCanvas.currentTextKey].length;
@@ -63,7 +63,7 @@ class Canvas
                 //reset the button
                 button.status = "progress";
                 TextCanvas.rewriteText();
-                wonSound.play();
+                winSound.play();
                 break;
             case "lost":
                 stereoSoundElement.pause();
@@ -1065,7 +1065,7 @@ class NonPlayableCharacter extends MoveableImage
                 else if 
                 ( this.xCoord == 224 && this.yCoord == 182)
                 {
-                    if (Math.random() > 0.02)
+                    if (Math.random() > 0.002)
                     {
                         this.currentPathTrack = "paused"
                     }
