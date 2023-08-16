@@ -198,13 +198,44 @@ class InteractableItem extends ImageClass
             playerAreaCanvas.ctx.drawImage(this.imageElement, this.xCoord, this.yCoord);
         }
     }
-    isClose(player)
+    isClose()
     {
-        //helper function:
         //Purpose: writing out all the text dialogue options because it is used both at the initial hitting and colliding back
-        //TODO helper function for the dialogue selection
+        function selectCorrectDialogue(furniture)
+        {
+            if (furniture.isOpenable)
+            {
+
+                TextCanvas.rewriteText('openingFurniture');
+
+            }
+            else if (furniture.isPickupItem)
+            {
+                TextCanvas.rewriteText('pickingUpItem');
+            }
+            //Specifically for the breaker box and stereo, they have custom messages. Ideally I would have changed the class system to compensate
+            else if (furniture == stereo)
+            {
+                TextCanvas.rewriteText("stereo")
+            }
+            else if (furniture == breakerBox)
+            {
+                TextCanvas.rewriteText("breakerBox")
+            }
+            else if (furniture.isBreakable)
+            {
+                if (userSprite.hasWeapon && furniture.isBroken == false)
+                {
+                    TextCanvas.rewriteText("breakingItem");
+                }
+                else if (furniture.isBroken == false)
+                {
+                    TextCanvas.rewriteText("noWeapon")
+                }
+            } 
+        }
         //use the proper hitbox dimensions
-        let playerDimensions = player.getProperHitboxDimensions();
+        let playerDimensions = userSprite.getProperHitboxDimensions();
 
         if (
             this.xCoord < playerDimensions.xCoord + playerDimensions.width  &&
@@ -213,109 +244,49 @@ class InteractableItem extends ImageClass
             this.yCoord + this.height > playerDimensions.yCoord
             )
         {
-            player.placeholderCoordx = player.xCoord;
-            player.placeholderCoordy = player.yCoord;
-            player.xCoord = player.previousXCoord;
-            player.yCoord = player.previousYCoord;
-            TextCanvas.hasbeenRewritten = 'true';
+            userSprite.placeholderCoordx = userSprite.xCoord;
+            userSprite.placeholderCoordy = userSprite.yCoord;
+            userSprite.xCoord = userSprite.previousXCoord;
+            userSprite.yCoord = userSprite.previousYCoord;
+            TextCanvas.hasbeenRewritten = true;
 
-            player.byFurniture = true;
-            player.Furnitureby = this;
-            if (this.isOpenable)
-            {
+            userSprite.byFurniture = true;
+            userSprite.Furnitureby = this;
+            selectCorrectDialogue(this);
 
-                TextCanvas.rewriteText('openingFurniture');
-
-            }
-            else if (this.isPickupItem)
-            {
-                TextCanvas.rewriteText('pickingUpItem');
-            }
-            //Specifically for the breaker box and stereo, they have custom messages. Ideally I would have changed the class system to compensate
-            else if (this == stereo)
-            {
-                TextCanvas.rewriteText("stereo")
-            }
-            else if (this == breakerBox)
-            {
-                TextCanvas.rewriteText("breakerBox")
-            }
-            else if (this.isBreakable)
-            {
-                if (userSprite.hasWeapon && !this.isBroken)
-                {
-                    TextCanvas.rewriteText("breakingItem");
-                }
-                else if (!this.isBroken)
-                {
-                    TextCanvas.rewriteText("noWeapon")
-                }
-            } 
         }
         else if (
-            player.yCoord == player.previousYCoord && player.xCoord == player.previousXCoord &&
-            this.xCoord < player.placeholderCoordx + (playerDimensions.width)  &&
-            this.xCoord + this.width > player.placeholderCoordx   &&
-            this.yCoord < player.placeholderCoordy + (playerDimensions.height) &&
-            this.yCoord + this.height > (player.placeholderCoordy)
+            userSprite.yCoord == userSprite.previousYCoord && userSprite.xCoord == userSprite.previousXCoord &&
+            this.xCoord < userSprite.placeholderCoordx + (playerDimensions.width)  &&
+            this.xCoord + this.width > userSprite.placeholderCoordx   &&
+            this.yCoord < userSprite.placeholderCoordy + (userSprite.height) &&
+            this.yCoord + this.height > (userSprite.placeholderCoordy)
                 )
         {
-                //not sure why player wasnt working
-                player.byFurniture = true;
-                player.Furnitureby = this;
+                userSprite.byFurniture = true;
+                userSprite.Furnitureby = this;
                 this.changeColorWhenPlayerClose();
                 TextCanvas.hasbeenRewritten = true;
                 //so that on pressing e it doesnt reset
                 if (TextCanvas.currentText  == allPlayerOptions.openingFurniture)
                 {
-                    if (this.isOpenable)
-                    {
-                        TextCanvas.rewriteText('openingFurniture');  
-                    }
-                    else if (this.isPickupItem)
-                    {
-                        TextCanvas.rewriteText('pickingUpItem');
-                    }
-                    else if (this == stereo)
-                    {
-                        TextCanvas.rewriteText("stereo")
-                    }
-                    else if (breakerBox.isBreakable)
-                    {
-                        TextCanvas.rewriteText("BreakerBox")
-                    }
-                    else if (this.isBreakable)
-                    {
-                        if (userSprite.hasWeapon)
-                        {
-                            TextCanvas.rewriteText("breakingItem");
-                        }
-                        else
-                        {
-                            TextCanvas.rewriteText("noWeapon")
-                        }
-                    }                     {
-                        TextCanvas.rewriteText("BreakingItem")
-                    }
+                    selectCorrectDialogue(this);
+             
                 }
         }
-        else if((player.Furnitureby == this && player.yCoord !== player.previousYCoord) || (player.Furnitureby == this && player.xCoord !== player.previousXCoord))
+        else if(
+                (userSprite.Furnitureby == this && userSprite.yCoord !== userSprite.previousYCoord) || 
+                (userSprite.Furnitureby == this && userSprite.xCoord !== userSprite.previousXCoord)
+                )
         {
 
-                player.byFurniture = false;
-                player.Furnitureby = null;
-                player.placeholderCoordx = null;
-                player.placeholderCoordy = null;
+                userSprite.byFurniture = false;
+                userSprite.Furnitureby = null;
+                userSprite.placeholderCoordx = null;
+                userSprite.placeholderCoordy = null;
                 if (TextCanvas.hasbeenRewritten)
                 {
-                    if (this.isOpenable)
-                    {
-                        TextCanvas.rewriteText('returnToText');
-                    }
-                    else if (this.isPickupItem)
-                    {
-                        TextCanvas.rewriteText('returnToText');
-                    }
+                    TextCanvas.rewriteText('returnToText');
                     TextCanvas.hasbeenRewritten = false;
                 }
         }
@@ -323,6 +294,7 @@ class InteractableItem extends ImageClass
     changeColorWhenPlayerClose()
     {
         //TODO change color based on what you can do with it 
+        //TODO change the heights and widths of the furniture in loadinimages to make more accurate
         playerAreaCanvas.ctx.fillStyle = 'rgba(245,152,39,0.5)';
         playerAreaCanvas.ctx.fillRect(this.xCoord +5 ,this.yCoord + 5,this.width,this.height);
     }
@@ -506,7 +478,6 @@ class DualInteractableItem extends InteractableItem
         //TODO helper function for the dialogue selection
         //use the proper hitbox dimensions
         let playerDimensions = userSprite.getProperHitboxDimensions();
-        console.log(userSprite.Furnitureby)
         if (
             this.xCoord < playerDimensions.xCoord + playerDimensions.width  &&
             this.xCoord + this.width > playerDimensions.xCoord   &&
@@ -729,6 +700,8 @@ class NonPlayableCharacter extends MoveableImage
         //used to take the NPC out of cower mode when the player moves far enough away
         this.previousTrack             = null;
         this.scaredState               = false;
+        //used for determining when the NPC gets back up post scare
+        this.Scaredcount               = 0;
         //used for collision detection    
         this.previousXCoord            = null;
         this.previousYCoord            = null;
@@ -1165,15 +1138,22 @@ class NonPlayableCharacter extends MoveableImage
     {
         //Note: im not correcting the actual player dimensions because the wiggle room of the transparency makes it more reasonable in this case
         //collision detection when within like, 5 player widths and heights of a player
-        const player = userSprite;
+        //if the sprite is scared, add a counter
+        if (this.scaredState)
+        {
+            startledDialog.xCoord = (this.xCoord + 32); 
+            startledDialog.yCoord = this.yCoord;
+            startledDialog.drawImage()
+            this.Scaredcount++;
+        }
         //only for the male NPC sprite upstairs, if he is asleep all detection is off and put in a rewrite text option
         if ( manNPCSprite.xCoord == 672 && manNPCSprite.yCoord == 87)
         {
             if (
-                this.xCoord < player.xCoord + player.width  &&
-                this.xCoord + this.width > player.xCoord  &&
-                this.yCoord < player.yCoord + player.height &&
-                (this.yCoord + this.height) > player.yCoord
+                this.xCoord < userSprite.xCoord + userSprite.width  &&
+                this.xCoord + this.width > userSprite.xCoord  &&
+                this.yCoord < userSprite.yCoord + userSprite.height &&
+                (this.yCoord + this.height) > userSprite.yCoord
                 )
             {
                 //write in the text
@@ -1193,17 +1173,14 @@ class NonPlayableCharacter extends MoveableImage
             }
         }
         else if (
-            this.xCoord < player.xCoord + player.width  &&
-            this.xCoord + this.width > player.xCoord  &&
-            this.yCoord < player.yCoord + player.height &&
-            (this.yCoord + this.height) > player.yCoord
+            this.xCoord < userSprite.xCoord + userSprite.width  &&
+            this.xCoord + this.width > userSprite.xCoord  &&
+            this.yCoord < userSprite.yCoord + userSprite.height &&
+            this.yCoord + this.height > userSprite.yCoord
             )
         {
             if (!userSprite.insideWall)
             {
-                startledDialog.xCoord = (this.xCoord + 32); 
-                startledDialog.yCoord = this.yCoord;
-                startledDialog.drawImage()
                 if (this.previousTrack == null)
                 {
                     this.previousTrack = this.currentPathTrack;
@@ -1216,18 +1193,19 @@ class NonPlayableCharacter extends MoveableImage
                 }
                 this.currentPathTrack = "scared";
                 this.scaredState = true;
+                this.Scaredcount++;
             }
         }
         //Purpose: shows a warning dialogue if the player is nearby
         else if
         (
-            this.xCoord - 200 < player.xCoord + (player.width -player.heightAndWidthAllowance)  &&
-            this.xCoord + 200 > player.xCoord + player.heightAndWidthAllowance  &&
-            this.yCoord - 200< player.yCoord + (player.height) &&
-            this.yCoord + 200 > (player.yCoord + player.heightAndWidthAllowance)
+            this.xCoord - 200 < userSprite.xCoord + (userSprite.width -userSprite.heightAndWidthAllowance)  &&
+            this.xCoord + 200 > userSprite.xCoord + userSprite.heightAndWidthAllowance  &&
+            this.yCoord - 200< userSprite.yCoord + (userSprite.height) &&
+            this.yCoord + 200 > (userSprite.yCoord + userSprite.heightAndWidthAllowance)
         )
         {
-            if (!userSprite.insideWall)
+            if (!userSprite.insideWall && this.scaredState == false)
             {
                 warningDialog.xCoord = (this.xCoord + 32);
                 warningDialog.yCoord = this.yCoord;
@@ -1235,12 +1213,13 @@ class NonPlayableCharacter extends MoveableImage
             }
             //if false, put the warning question mark, if true restart the walking
             //because the npc is far enough away 
-            if (this.scaredState)
-            {
-                this.scaredState = false;
-                this.currentPathTrack = this.previousTrack;
-                this.previousTrack = null;
-            }
+        }
+        if (this.scaredState && this.Scaredcount > 400)
+        {
+            this.scaredState = false;
+            this.currentPathTrack = this.previousTrack;
+            this.previousTrack = null;
+            this.Scaredcount = 0;
         }
     }
 }

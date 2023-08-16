@@ -130,11 +130,11 @@ document.addEventListener("keydown", async function (e){
        {
             //complete the quest and turn on the stereo
                 //update your progress bar
-                statsCanvas.progressCounter++;
-                statsCanvas.updateProgressBar();
                 //bookquest
                 if (stereo.hasCompleted == false)
                 {
+                    statsCanvas.progressCounter++;
+                    statsCanvas.updateProgressBar();
                     TextCanvas.currentTextKey = "dollQuest";
                     // -1 not 0 to make the rewriteText work correctly
                     TextCanvas.currentTextArrayIndex = -1;
@@ -144,10 +144,32 @@ document.addEventListener("keydown", async function (e){
                     //reset the button
                     button.status = "progress";
                     TextCanvas.rewriteText();
-                    stereo.hasCompleted = "true"
+                    stereo.hasCompleted = true
                 }
                 stereoSoundElement.play();
        } 
+       else if (userSprite.Furnitureby == breakerBox)
+       {
+            if (!breakerBox.hasCompleted)
+            {
+            //move on to spray paint
+            statsCanvas.progressCounter++;
+            statsCanvas.updateProgressBar();
+            //bookquest
+            TextCanvas.currentTextKey = "whisperQuest";
+            // -1 not 0 to make the rewriteText work correctly
+            TextCanvas.currentTextArrayIndex = -1;
+            TextCanvas.totalArrayIndex = allTexts[TextCanvas.currentTextKey].length;
+            //to make rewriting the text work 
+            TextCanvas.previousText = allTexts[TextCanvas.currentTextKey][0];
+            //reset the button
+            button.status = "progress";
+            TextCanvas.rewriteText();
+            questCompleteSoundElement.play();
+            basementBackground.inFlickerState = true;
+            this.hasCompleted = true;
+            }
+       }
        else if (userSprite.byFurniture)
        {
             if(userSprite.Furnitureby.isOpenable)
@@ -199,25 +221,6 @@ document.addEventListener("keydown", async function (e){
                         TextCanvas.rewriteText();
                         questCompleteSoundElement.play();
                     }
-                    else if (userSprite.Furnitureby == breakerBox)
-                    {
-                        //move on to spray paint
-                        statsCanvas.progressCounter++;
-                        statsCanvas.updateProgressBar();
-                        //bookquest
-                        TextCanvas.currentTextKey = "whisperQuest";
-                        // -1 not 0 to make the rewriteText work correctly
-                        TextCanvas.currentTextArrayIndex = -1;
-                        TextCanvas.totalArrayIndex = allTexts[TextCanvas.currentTextKey].length;
-                        //to make rewriting the text work 
-                        TextCanvas.previousText = allTexts[TextCanvas.currentTextKey][0];
-                        //reset the button
-                        button.status = "progress";
-                        TextCanvas.rewriteText();
-                        questCompleteSoundElement.play();
-                        basementBackground.inFlickerState = true;
-                    }
-
                 }
             }
        }

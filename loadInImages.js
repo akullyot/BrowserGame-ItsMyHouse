@@ -102,11 +102,11 @@ mirror.createBrokenImageElement();
 const breakerBox = new InteractableItem('assets/basement/Items/breakerBox.png', 278,184, 32,32,true,false,false,null,null) //its in the breakable category but it instead flickers the lights
 breakerBox.createImageElement();
 
-const shelves1  = new InteractableItem('assets/basement/Items/shelf.png', 500, 305, 30,30, false,true,false, ["candy"], null);
+const shelves1  = new InteractableItem('assets/basement/Items/shelf.png', 500, 305, 50,50, false,true,false, ["candy"], null);
 shelves1.createImageElement();
-const shelves2  = new InteractableItem('assets/basement/Items/shelf.png', 380, 175, 30,30, false,true,false, ["candy", "paint"],null);
+const shelves2  = new InteractableItem('assets/basement/Items/shelf.png', 380, 175, 50,50, false,true,false, ["candy", "paint"],null);
 shelves2.createImageElement();
-const shelves3  = new InteractableItem('assets/basement/Items/shelf.png', 440, 175, 40,40, false,true,false, ["candy"],null);
+const shelves3  = new InteractableItem('assets/basement/Items/shelf.png', 440, 175, 50,50, false,true,false, ["candy"],null);
 shelves3.createImageElement();
 
 const whisperVent = new DualInteractableItem("assets/basement/Items/vent.png",238,174, 32,32,true);
@@ -131,32 +131,32 @@ function updatePlayerArea()
             firstFloorBackground.addmap();
             //add furniture
             vanity.drawFurniture();
-            vanity.isClose(userSprite);
+            vanity.isClose();
             dresserLeft.drawFurniture();
-            dresserLeft.isClose(userSprite);
+            dresserLeft.isClose();
             dresserRight.drawFurniture();
-            dresserRight.isClose(userSprite);
+            dresserRight.isClose();
 
             bookshelfLeft.drawFurniture();
-            bookshelfLeft.isClose(userSprite);
+            bookshelfLeft.isClose();
             bookshelfRight.drawFurniture();
-            bookshelfRight.isClose(userSprite);
+            bookshelfRight.isClose();
             
             chairRightDown.drawDraggableFurniture();    
             chairRightUp.drawDraggableFurniture(); 
 
 
             stove.drawFurniture();
-            stove.isClose(userSprite);
+            stove.isClose();
             fridge.drawFurniture();
-            fridge.isClose(userSprite);
+            fridge.isClose();
             toilet.drawFurniture();
-            toilet.isClose(userSprite);
+            toilet.isClose();
             // add in items
             if (book.itemsInside.length !== 0)
             {
                 book.drawFurniture();
-                book.isClose(userSprite);
+                book.isClose();
             }
            
         
@@ -175,14 +175,14 @@ function updatePlayerArea()
             basementBackground.addmap();
             //add in furniture
             breakerBox.drawFurniture();
-            breakerBox.isClose(userSprite);   
+            breakerBox.isClose();   
 
             shelves1.drawFurniture();
-            shelves1.isClose(userSprite);
+            shelves1.isClose();
             shelves2.drawFurniture();
-            shelves2.isClose(userSprite);
+            shelves2.isClose();
             shelves3.drawFurniture();
-            shelves3.isClose(userSprite);
+            shelves3.isClose();
 
             whisperVent.drawFurniture();
             whisperVent.isPlayerClose();
@@ -205,13 +205,13 @@ function updatePlayerArea()
             //add in furniture
             //rummagable
             dresserSecond.drawFurniture();
-            dresserSecond.isClose(userSprite);
-            //breakable (stereo is a special type of breakable)
-              stereo.drawFurniture();
-              stereo.isClose(userSprite);
-              mirror.drawFurniture();
-              mirror.isClose(userSprite);
-
+            dresserSecond.isClose();
+            //breakable 
+            mirror.drawFurniture();
+            mirror.isClose();
+            //misc
+            stereo.drawFurniture();
+            stereo.isClose();
             //pickupable
             doll.drawDraggableFurniture();
            

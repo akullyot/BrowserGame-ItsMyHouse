@@ -63,7 +63,7 @@ const allPlayerOptions =
     'pickingUpItem'         : "Press e to pickup item",
     'dragItem'              : "Press r to drag item, then r to drop item",
     'stereo'                : "Press e to start the stereo",
-    'breakBox'              : "Press e to flicker the lights",
+    'breakerBox'            : "Press e to flicker the lights",
     'breakingItem'          : "Press e to smash the object",
     'noWeapon'              : "I need a weapon before I can smash this object.",
     'whisper'               : "Press z to whisper",
@@ -209,6 +209,22 @@ class ClickableCanvas extends Canvas
             }
             //dont draw a button
             this.currentText = allPlayerOptions.byDoor;
+            this.ctx.clearRect(0,0,this.width,this.height);
+            textBackground.drawImage();
+            this.ctx.font = "bold 20px Courier New";
+            this.ctx.fillStyle = "black";
+            this.ctx.fillText(this.currentText, 65, 90);
+            this.counter++;
+        }
+        else if(tempDirection == "breakerBox")
+        {
+            //first keep track of previous text 
+            if (this.counter == 0)
+            {
+                this.previousText = this.currentText; 
+            }
+            //dont draw a button
+            this.currentText = allPlayerOptions.breakerBox;
             this.ctx.clearRect(0,0,this.width,this.height);
             textBackground.drawImage();
             this.ctx.font = "bold 20px Courier New";
