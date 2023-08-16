@@ -164,6 +164,7 @@ function updatePlayerArea()
             ladyNPCSprite.animate();
             ladyNPCSprite.path();
             ladyNPCSprite.detectPlayerNearby();
+            ladyNPCSprite.getPreviousXandY();
 
             //add in the user 
             userSprite.animate();
@@ -184,12 +185,14 @@ function updatePlayerArea()
             shelves3.isClose(userSprite);
 
             whisperVent.drawFurniture();
-            whisperVent.isPlayerClose(userSprite);
+            whisperVent.isPlayerClose();
 
             //add in NPCs
             childNPCSprite.animate();
             childNPCSprite.path();
             childNPCSprite.detectPlayerNearby();
+            childNPCSprite.getPreviousXandY();
+
 
             userSprite.animate();
             //darken behind the walls
@@ -218,6 +221,7 @@ function updatePlayerArea()
             manNPCSprite.path();
             //this one has a sleeping function that turns off player detection while asleep 
             manNPCSprite.detectPlayerNearby();
+            manNPCSprite.getPreviousXandY();
             //add in the user
             userSprite.animate();
 

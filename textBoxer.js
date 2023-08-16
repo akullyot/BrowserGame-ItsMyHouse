@@ -7,7 +7,7 @@ const allTexts =
     'turnOnRadioQuest'    : ["Quest 3 complete!", "Chapter 1 also says that poltergeists can manipulate electricity.", "If I turn on the radio upstairs without them catching me", "I'm sure that will scare them."],
     'dollQuest'           : ["Quest 4 complete!", "Chapter 1 also says that poltergeists sometimes possess items", "Nothing is scarier than a possessed doll", "I should move the doll upstairs at least three tile blocks"],
     'maceQuest'           : ["Quest 5 complete!", "Poltergeists are also extrememly violent and known to smash items", "I should find an object with which I can smash things.", "Maybe upstairs they have some sort of self defense object."],
-    'smashMirrorQuest'    : ["Quest 6 complete!", "Poltergeists also appatently really hate reflections", "I should use the mace I just picked up to smash the mirror in the bedroom"],
+    'smashMirrorQuest'    : ["Quest 6 complete!", "Poltergeists also apparently are very adverse to mirrors", "I should use the mace I just picked up to smash the mirror in the bedroom"],
     'breakerBoxQuest'     : ["Quest 7 complete!", "Chapter 2: Ghosts", "Ghosts are also able to manipulate electricity,", "Especially the lights.","I should go downstairs and turn off the breaker box,","causing the lights to flicker."],
     'whisperQuest'        : ["Quest 8 complete!", "According to Chapter 2, ghosts sometimes try to communicate with the living", "I should whisper from behind the vent in the basement wall,", "when someone walks by."],
     'toiletBreakQuest'    : ["Quest 9 complete!", "According to Chapter 2, ghosts can also be violent", "I should go to the main floor and break the toilet"],

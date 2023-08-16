@@ -236,7 +236,7 @@ class InteractableItem extends ImageClass
             {
                 TextCanvas.rewriteText("stereo")
             }
-            else if (this == null)
+            else if (this == breakerBox)
             {
                 TextCanvas.rewriteText("breakerBox")
             }
@@ -299,7 +299,7 @@ class InteractableItem extends ImageClass
                     }
                 }
         }
-        else if((player.byFurniture && player.yCoord !== player.previousYCoord) || (player.byFurniture && player.xCoord !== player.previousXCoord))
+        else if((player.Furnitureby == this && player.yCoord !== player.previousYCoord) || (player.Furnitureby == this && player.xCoord !== player.previousXCoord))
         {
 
                 player.byFurniture = false;
@@ -475,7 +475,7 @@ class DraggableItem extends InteractableItem
                 button.status = "progress";
                 //setTimeout(questCompleteSoundElement.play(),1000);
                 TextCanvas.rewriteText();
-                statsCanvas.completedDraggingQuestCount.push("chairQuest");
+                statsCanvas.completedDraggingQuestCount.push("dollQuest");
             }
 
         }
@@ -499,14 +499,14 @@ class DualInteractableItem extends InteractableItem
         this.behindWall     = behindWall;
         this.hasCompleted   = false;
     }
-    isPlayerClose(player)
+    isPlayerClose()
     {
         //helper function:
         //Purpose: writing out all the text dialogue options because it is used both at the initial hitting and colliding back
         //TODO helper function for the dialogue selection
         //use the proper hitbox dimensions
-        let playerDimensions = player.getProperHitboxDimensions();
-
+        let playerDimensions = userSprite.getProperHitboxDimensions();
+        console.log(userSprite.Furnitureby)
         if (
             this.xCoord < playerDimensions.xCoord + playerDimensions.width  &&
             this.xCoord + this.width > playerDimensions.xCoord   &&
@@ -514,47 +514,20 @@ class DualInteractableItem extends InteractableItem
             (this.yCoord + this.height - 20) > playerDimensions.yCoord
             )
         {
-            player.placeholderCoordx = player.xCoord;
-            player.placeholderCoordy = player.yCoord;
-            player.xCoord = player.previousXCoord;
-            player.yCoord = player.previousYCoord;
-            TextCanvas.hasbeenRewritten = 'true';
-
-            player.byFurniture = true;
-            player.Furnitureby = this;
+            TextCanvas.hasbeenRewritten = true;
+            userSprite.byFurniture = true;
+            userSprite.Furnitureby = this;
             TextCanvas.rewriteText('whisper');
         }
-        else if (
-            player.yCoord == player.previousYCoord && player.xCoord == player.previousXCoord &&
-            this.xCoord < player.placeholderCoordx + (playerDimensions.width)  &&
-            this.xCoord + this.width > player.placeholderCoordx   &&
-            this.yCoord < player.placeholderCoordy + (playerDimensions.height) &&
-            this.yCoord + this.height > (player.placeholderCoordy)
-                )
+        else if(userSprite.Furnitureby == this)
         {
-                //not sure why player wasnt working
-                player.byFurniture = true;
-                player.Furnitureby = this;
-                this.changeColorWhenPlayerClose();
-                TextCanvas.hasbeenRewritten = true;
-                //so that on pressing e it doesnt reset
-                if (TextCanvas.currentText  == allPlayerOptions.openingFurniture)
-                {
-                    TextCanvas.rewriteText('whisper');
-                }
-        }
-        else if((player.byFurniture && player.yCoord !== player.previousYCoord) || (player.byFurniture && player.xCoord !== player.previousXCoord))
-        {
-
-                player.byFurniture = false;
-                player.Furnitureby = null;
-                player.placeholderCoordx = null;
-                player.placeholderCoordy = null;
-                if (TextCanvas.hasbeenRewritten)
-                {
-                    TextCanvas.rewriteText('returnToText');
-                    TextCanvas.hasbeenRewritten = false;
-                }
+            userSprite.byFurniture = false;
+            userSprite.Furnitureby = null;
+            if (TextCanvas.hasbeenRewritten)
+            {
+                TextCanvas.rewriteText('returnToText');
+                TextCanvas.hasbeenRewritten = false;
+            }
         }
     }
 
@@ -1025,8 +998,6 @@ class NonPlayableCharacter extends MoveableImage
                             (this.xCoord == 301 && this.yCoord == 120) ||
                             (this.xCoord == 147 && this.yCoord == 183 ) ||
                             (this.xCoord == 210 && this.yCoord == 246 )
-           
-
                         )
                         {
 
@@ -1121,7 +1092,7 @@ class NonPlayableCharacter extends MoveableImage
                 else if 
                 ( this.xCoord == 224 && this.yCoord == 182)
                 {
-                    if (Math.random() > 0.002)
+                    if (Math.random() > 0.02)
                     {
                         this.currentPathTrack = "paused"
                     }
@@ -1236,7 +1207,9 @@ class NonPlayableCharacter extends MoveableImage
                 if (this.previousTrack == null)
                 {
                     this.previousTrack = this.currentPathTrack;
-                    //this is an easy way as well to only take away one heart
+                    //push them back one in the appropriate direction as well to fix a bug that occurs if you hit them at a break point
+                    this.xCoord = this.previousXCoord;
+                    this.yCoord = this.previousYCoord;
                     statsCanvas.health--;
                     statsCanvas.updateHearts();
                     screamSoundElement.play();

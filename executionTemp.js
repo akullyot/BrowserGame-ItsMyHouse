@@ -322,6 +322,11 @@ document.addEventListener("keydown", async function (e){
                 questCompleteSoundElement.play();
             }
         }
+        if (TextCanvas.hasbeenRewritten)
+        {
+            TextCanvas.rewriteText('returnToText');
+            TextCanvas.hasbeenRewritten = false;
+        }
     }
     else
     {

@@ -33,8 +33,8 @@ moveThroughPaintingSoundElement.volume = 0.3;
 moveThroughPaintingSoundElement.loop = false;
 
 const questCompleteSoundElement = new Audio("assets/audio/questComplete.mp3");
-moveThroughPaintingSoundElement.volume = 0.1;
-moveThroughPaintingSoundElement.loop = false;
+questCompleteSoundElement.volume = 0.4;
+questCompleteSoundElement.loop = false;
 
 const stairSoundElement = new Audio("assets/audio/stairwalking.mp3");
 stairSoundElement.volume = 0.1;
