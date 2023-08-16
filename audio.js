@@ -2,6 +2,14 @@ const backgroundMusicElement = new Audio("assets/audio/ParanormalPhenomena.wav")
 backgroundMusicElement.volume = 0.3;
 backgroundMusicElement.loop = true;
 
+const loseSound = new Audio("assets/audio/lose.wav");
+loseSound.volume = 0.3;
+loseSound.loop = false;
+
+const winSound = new Audio("assets/audio/win.wav");
+winSound.volume = 0.3;
+winSound.loop = true;
+
 
 const textWritingSoundElement = new Audio("assets/audio/textWriting.wav");
 textWritingSoundElement.volume = 0.7;
@@ -39,3 +47,7 @@ stereoSoundElement.loop  = false;
 const breakingSoundElement = new Audio ("assets/audio/break.wav");
 breakingSoundElement.volume = 0.5;
 breakingSoundElement.loop  = false;
+
+const whisperSoundElement = new Audio ("assets/audio/whisper.wav");
+whisperSoundElement.volume = 0.6;
+whisperSoundElement.loop  = false;

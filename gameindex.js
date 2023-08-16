@@ -51,6 +51,35 @@ class Canvas
                 stereoSoundElement.pause();
                 backgroundImage = basementBackground.imageElement;
                 break;
+            case "won":
+                stereoSoundElement.pause();
+                backgroundMusicElement.pause();
+                backgroundImage = wonBackground.imageElement;
+                TextCanvas.currentTextKey = "sigilQuest";
+                TextCanvas.currentTextArrayIndex = -1;
+                TextCanvas.totalArrayIndex = allTexts[TextCanvas.currentTextKey].length;
+                //to make rewriting the text work 
+                TextCanvas.previousText = allTexts[TextCanvas.currentTextKey][0];
+                //reset the button
+                button.status = "progress";
+                TextCanvas.rewriteText();
+                wonSound.play();
+                break;
+            case "lost":
+                stereoSoundElement.pause();
+                backgroundMusicElement.pause();
+                backgroundImage = loseBackground.imageElement;
+                TextCanvas.currentTextKey = "lost";
+                TextCanvas.currentTextArrayIndex = -1;
+                TextCanvas.totalArrayIndex = allTexts[TextCanvas.currentTextKey].length;
+                //to make rewriting the text work 
+                TextCanvas.previousText = allTexts[TextCanvas.currentTextKey][0];
+                //reset the button
+                button.status = "progress";
+                TextCanvas.rewriteText();
+                loseSound.play();
+                break;
+
         }
         if (this.transitionWidth > fullAreaWidth && this.transitionHeight > fullAreaHeight)
         {
@@ -141,7 +170,9 @@ class InteractableItem extends ImageClass
         this.isOpenable               = isOpenable;
         //THIS APPLIES to both isPickupItem and isOpenable. this is an array of the item itself/ the items inside. 
         // Note: this will reset each time you reload a floor except for pickup items and quest items 
-        this.itemsInside              = itemsInside;    
+        this.itemsInside              = itemsInside;   
+        //For some you need to keep track if they have already been interacted with so the completion doesnt fire twice
+        this.hasCompleted             = false; 
     }
     createBrokenImageElement()
     {
@@ -296,8 +327,8 @@ class InteractableItem extends ImageClass
         playerAreaCanvas.ctx.fillRect(this.xCoord +5 ,this.yCoord + 5,this.width,this.height);
     }
 }
-//Purpose         :
-//Instantiations  :
+//Purpose         : Creates items that can be dragged by the player and dropped by pressing R
+//Instantiations  : doll, chairRightDown, chairRightUp
 //ChildClasses    : none
 class DraggableItem extends InteractableItem
 {
@@ -452,6 +483,81 @@ class DraggableItem extends InteractableItem
             //check if youve dragged the item far enough away
             //if they have 
     }
+}
+//Purpose         :
+//Instantiations  : vent, bed
+//ChildClasses    : none
+class DualInteractableItem extends InteractableItem
+{
+    constructor (src, xCoord, yCoord, height, width, behindWall)
+    {
+        super(src,xCoord,yCoord,height, width)
+        // userSprite.FurnitureBy and userSprite.byFurniture
+        this.playerNearby   = null;
+        this.NPCNearby      = null;
+        // If the quest wants you behind the wall, it will check that you are
+        this.behindWall     = behindWall;
+        this.hasCompleted   = false;
+    }
+    isPlayerClose(player)
+    {
+        //helper function:
+        //Purpose: writing out all the text dialogue options because it is used both at the initial hitting and colliding back
+        //TODO helper function for the dialogue selection
+        //use the proper hitbox dimensions
+        let playerDimensions = player.getProperHitboxDimensions();
+
+        if (
+            this.xCoord < playerDimensions.xCoord + playerDimensions.width  &&
+            this.xCoord + this.width > playerDimensions.xCoord   &&
+            (this.yCoord - 20) < playerDimensions.yCoord + playerDimensions.height &&
+            (this.yCoord + this.height - 20) > playerDimensions.yCoord
+            )
+        {
+            player.placeholderCoordx = player.xCoord;
+            player.placeholderCoordy = player.yCoord;
+            player.xCoord = player.previousXCoord;
+            player.yCoord = player.previousYCoord;
+            TextCanvas.hasbeenRewritten = 'true';
+
+            player.byFurniture = true;
+            player.Furnitureby = this;
+            TextCanvas.rewriteText('whisper');
+        }
+        else if (
+            player.yCoord == player.previousYCoord && player.xCoord == player.previousXCoord &&
+            this.xCoord < player.placeholderCoordx + (playerDimensions.width)  &&
+            this.xCoord + this.width > player.placeholderCoordx   &&
+            this.yCoord < player.placeholderCoordy + (playerDimensions.height) &&
+            this.yCoord + this.height > (player.placeholderCoordy)
+                )
+        {
+                //not sure why player wasnt working
+                player.byFurniture = true;
+                player.Furnitureby = this;
+                this.changeColorWhenPlayerClose();
+                TextCanvas.hasbeenRewritten = true;
+                //so that on pressing e it doesnt reset
+                if (TextCanvas.currentText  == allPlayerOptions.openingFurniture)
+                {
+                    TextCanvas.rewriteText('whisper');
+                }
+        }
+        else if((player.byFurniture && player.yCoord !== player.previousYCoord) || (player.byFurniture && player.xCoord !== player.previousXCoord))
+        {
+
+                player.byFurniture = false;
+                player.Furnitureby = null;
+                player.placeholderCoordx = null;
+                player.placeholderCoordy = null;
+                if (TextCanvas.hasbeenRewritten)
+                {
+                    TextCanvas.rewriteText('returnToText');
+                    TextCanvas.hasbeenRewritten = false;
+                }
+        }
+    }
+
 }
 //Purpose         :
 //Instantiations  :
@@ -963,6 +1069,18 @@ class NonPlayableCharacter extends MoveableImage
                 {
                     this.currentPathTrack = "right"
                 }
+                else if 
+                ( this.xCoord == 224 && this.yCoord == 182)
+                {
+                    if (Math.random() > 0.002)
+                    {
+                        this.currentPathTrack = "paused"
+                    }
+                    else
+                    {
+                        this.currentPathTrack = "right"
+                    }
+                }
                 break;
         }
 
@@ -1091,6 +1209,9 @@ class Background extends ImageClass
         this.gridRows        = 15;
         this.gridCols        = 30;
         this.floor           = floor;
+        //used for flickering the lights, right now just in the basement
+        this.inFlickerState            = false;
+        this.flickerCount              = 0;
     }
     addmap()
     {
@@ -1223,6 +1344,38 @@ class Background extends ImageClass
                 }
             }
         }
+    }
+    //Purpose: For the breakerBox quest, flicker the lights
+    flickerLights()
+    {
+        if (this.inFlickerState)
+        {
+            if 
+            ( 
+                (this.flickerCount < 100) ||
+                (this.flickerCount < 300 && this.flickerCount >= 200) ||
+                (this.flickerCount < 500 && this.flickerCount >= 400)
+            )
+            {
+                playerAreaCanvas.ctx.fillStyle = 'rgba(0,0,0,0.6)';
+                playerAreaCanvas.ctx.fillRect(0,0, playerAreaCanvas.width, playerAreaCanvas.height);
+                this.flickerCount++;
+            }
+            else if ( (this.flickerCount >= 100 && this.flickerCount < 200) ||
+                      (this.flickerCount >= 300 && this.flickerCount < 400)
+                    )
+            {
+                playerAreaCanvas.ctx.fillStyle = 'rgba(0,0,0,0)';
+                playerAreaCanvas.ctx.fillRect(0,0, playerAreaCanvas.width, playerAreaCanvas.height);
+                this.flickerCount++;
+            }
+            else if (this.flickerCount == 600)
+            {
+                this.flickerCount = 0;
+                this.inFlickerState = false;
+            }
+        }
+
     }
 
 }

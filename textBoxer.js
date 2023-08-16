@@ -9,11 +9,12 @@ const allTexts =
     'maceQuest'           : ["Quest 5 complete!", "Poltergeists are also extrememly violent and known to smash items", "I should find an object with which I can smash things.", "Maybe upstairs they have some sort of self defense object."],
     'smashMirrorQuest'    : ["Quest 6 complete!", "Poltergeists also appatently really hate reflections", "I should use the mace I just picked up to smash the mirror in the bedroom"],
     'breakerBoxQuest'     : ["Quest 7 complete!", "Chapter 2: Ghosts", "Ghosts are also able to manipulate electricity,", "Especially the lights.","I should go downstairs and turn off the breaker box,","causing the lights to flicker."],
-    'whisperQuest'        : ["Quest 8 complete!", "According to Chapter 2, ghosts sometimes try to communicate with the living", "I should whisper from behind the hole in the basement wall,", "when someone walks by."],
+    'whisperQuest'        : ["Quest 8 complete!", "According to Chapter 2, ghosts sometimes try to communicate with the living", "I should whisper from behind the vent in the basement wall,", "when someone walks by."],
     'toiletBreakQuest'    : ["Quest 9 complete!"],
     'sleepingQuest'       : ["Quest 10 complete!"],
     'sprayPaintQuest'     : ["Quest 11 complete!"],
-    'sigilQuest'          : ["After countless scares, you perform the coup de grâce and draw an occult symbol on the floor", "The homeowners find it, are terrified, and pack their bags immediately.", "Congratulations, the house is yours again!", "That is, until the next family moves in...."]
+    'sigilQuest'          : ["After countless scares, you perform the coup de grâce and draw an occult symbol on the floor", "The homeowners find it, are terrified, and pack their bags immediately.", "Congratulations, the house is yours again!", "That is, until the next family moves in...."],
+    'lost'                : ["Finally, the family caught on and the police were called.", "Not just have you lost your house, but you have lost your freedom."]
 }
 //Purpose: for the sake of linear quest progression, keep track of if a quest has been completed. If you do it out of order, youll just have to redo the quest, if applicable. 
 //         If not, use the second boolean to then see if you have already done it. If it doesnt apply, the value will be null.
@@ -45,11 +46,12 @@ const allHints =
     'maceQuest'           : "Search upstairs drawers for a blunt weapon.",
     'smashMirrorQuest'    : "Smash the mirror in the upstairs bathroom with a mace.",
     'breakerBoxQuest'     : "Interact with the grey box in the basement.",
-    'whisperQuest'        : "While the child in the basement is standing by the hole, whisper.",
+    'whisperQuest'        : "While the child in the basement is standing by the vent, whisper.",
     'toiletBreakQuest'    : "Break the toilet on the first floor.",
     'sleepingQuest'       : "While the man is sleeping upstairs, tickle his toes. Run out of the room fast!",
     'sprayPaintQuest'     : "Search downstairs for spray paint.", 
-    'sigilQuest'          : "Congratulations on winning! Please return to the entrance page to see art and sound attributions."
+    'sigilQuest'          : "Congratulations on winning! Please return to the entrance page to see art and sound attributions.",
+    'lost'                : "Return to the main menu to try again."
 }
 //Purpose: When near an interactable item, the text will change to one of these following options. Then, when they move out of range the rewriteText option
 //         will fire and bring them back to the quest dialogue.
@@ -63,7 +65,8 @@ const allPlayerOptions =
     'stereo'                : "Press e to start the stereo",
     'breakBox'              : "Press e to flicker the lights",
     'breakingItem'          : "Press e to smash the object",
-    'noWeapon'              : "I need a weapon before I can smash this object."
+    'noWeapon'              : "I need a weapon before I can smash this object.",
+    'whisper'               : "Press z to whisper"
 }
 //Purpose            : extends the Canvas class to include clickable areas and buttons. This also holds all the text rewriting functionality.
 // All instantiations: TextCanvas
@@ -303,6 +306,20 @@ class ClickableCanvas extends Canvas
                 this.previousText = this.currentText; 
             }
             this.currentText = allPlayerOptions.stereo;
+            this.ctx.clearRect(0,0,this.width,this.height);
+            textBackground.drawImage();
+            this.ctx.font = "bold 20px Courier New";
+            this.ctx.fillStyle = "black";
+            this.ctx.fillText(this.currentText, 65, 90);
+            this.counter++;
+        }
+        else if (tempDirection == "whisper" )
+        {
+            if (this.counter == 0)
+            {
+                this.previousText = this.currentText; 
+            }
+            this.currentText = allPlayerOptions.whisper;
             this.ctx.clearRect(0,0,this.width,this.height);
             textBackground.drawImage();
             this.ctx.font = "bold 20px Courier New";

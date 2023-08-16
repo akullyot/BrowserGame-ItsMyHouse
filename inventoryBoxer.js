@@ -30,7 +30,14 @@ class InventoryCanvas extends Canvas
         switch (this.health)
         {
             case 0:
-                endGame();
+                this.endGame();
+                heartCover.xCoord = [126,164, 199, 234, 269 ];
+                heartCover.yCoord = Array(5).fill(70) ;
+                //not using the inbult draw function because im doing weird stuff with the height and width 
+                for (let i =0; i< heartCover.xCoord.length; i++)
+                {
+                    document.getElementById("informationAndStats").getContext('2d').drawImage(heartCover.imageElement,heartCover.xCoord[i], heartCover.yCoord[i], heartCover.height, heartCover.width);
+                }
                 break;
             case 1:
                 //start warning the player they're about to die 
@@ -206,6 +213,30 @@ class InventoryCanvas extends Canvas
             //TODO do i need a hasbook boolean?
             
         }
+        else if (itemArray.includes("paint"))
+        {
+            if (this.progressCounter == 11)
+            {
+                //update your progress bar
+                this.progressCounter++;
+                this.updateProgressBar();
+
+                //bookquest
+                TextCanvas.currentTextKey = "sigilQuest";
+                // -1 not 0 to make the rewriteText work correctly
+                TextCanvas.currentTextArrayIndex = -1;
+                TextCanvas.totalArrayIndex = allTexts[TextCanvas.currentTextKey].length;
+                //to make rewriting the text work 
+                TextCanvas.previousText = allTexts[TextCanvas.currentTextKey][0];
+
+                button.status = "progress";
+                //setTimeout(questCompleteSoundElement.play(),1000);
+                TextCanvas.rewriteText();
+
+                //go to the ending screen
+                playerAreaCanvas.floor = "won";
+            }
+        }
         else
         {
             TextCanvas.rewriteText("returntoText")
@@ -301,7 +332,8 @@ class InventoryCanvas extends Canvas
     //Purpose: Your hearts ran to 0, you lost! So sad :((
     endGame()
     {
-
+        playerAreaCanvas.floor = "transition"
+        playerAreaCanvas.transitionFloor = "lost";
     }
 }
 
@@ -322,6 +354,8 @@ const candy = new ImageClass("assets/questItems/candy.png", null,null,32,32, "in
 candy.createImageElement();
 const mace = new ImageClass ("assets/questItems/mace.png",null,null,32,32, "informationAndStats");
 mace.createImageElement();
+const paint = new ImageClass ("assets/questItems/paint.png",null,null,32,32, "informationAndStats");
+paint.createImageElement();
 
 //Purpose: helps with getting items out of dressers etc
 const allInventoryItems =
@@ -329,7 +363,8 @@ const allInventoryItems =
     "candle" : candle,
     "candy"  : candy,
     "book"   : book,
-    "mace"   : mace
+    "mace"   : mace,
+    "paint"  : paint
 }
 
 //add in images for progress bar, health, etc 

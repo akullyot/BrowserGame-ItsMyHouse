@@ -132,17 +132,20 @@ document.addEventListener("keydown", async function (e){
                 //update your progress bar
                 statsCanvas.progressCounter++;
                 statsCanvas.updateProgressBar();
-            
                 //bookquest
-                TextCanvas.currentTextKey = "dollQuest";
-                // -1 not 0 to make the rewriteText work correctly
-                TextCanvas.currentTextArrayIndex = -1;
-                TextCanvas.totalArrayIndex = allTexts[TextCanvas.currentTextKey].length;
-                //to make rewriting the text work 
-                TextCanvas.previousText = allTexts[TextCanvas.currentTextKey][0];
-                //reset the button
-                button.status = "progress";
-                TextCanvas.rewriteText();
+                if (stereo.hasCompleted == false)
+                {
+                    TextCanvas.currentTextKey = "dollQuest";
+                    // -1 not 0 to make the rewriteText work correctly
+                    TextCanvas.currentTextArrayIndex = -1;
+                    TextCanvas.totalArrayIndex = allTexts[TextCanvas.currentTextKey].length;
+                    //to make rewriting the text work 
+                    TextCanvas.previousText = allTexts[TextCanvas.currentTextKey][0];
+                    //reset the button
+                    button.status = "progress";
+                    TextCanvas.rewriteText();
+                    stereo.hasCompleted = "true"
+                }
                 stereoSoundElement.play();
        } 
        else if (userSprite.byFurniture)
@@ -195,6 +198,24 @@ document.addEventListener("keydown", async function (e){
                         button.status = "progress";
                         TextCanvas.rewriteText();
                         questCompleteSoundElement.play();
+                    }
+                    else if (userSprite.Furnitureby == breakerBox)
+                    {
+                        //move on to spray paint
+                        statsCanvas.progressCounter++;
+                        statsCanvas.updateProgressBar();
+                        //bookquest
+                        TextCanvas.currentTextKey = "whisperQuest";
+                        // -1 not 0 to make the rewriteText work correctly
+                        TextCanvas.currentTextArrayIndex = -1;
+                        TextCanvas.totalArrayIndex = allTexts[TextCanvas.currentTextKey].length;
+                        //to make rewriting the text work 
+                        TextCanvas.previousText = allTexts[TextCanvas.currentTextKey][0];
+                        //reset the button
+                        button.status = "progress";
+                        TextCanvas.rewriteText();
+                        questCompleteSoundElement.play();
+                        basementBackground.inFlickerState = true;
                     }
 
                 }
@@ -252,6 +273,31 @@ document.addEventListener("keydown", async function (e){
             }
 
 
+        }
+    }
+    else if (e.key == "z")
+    {
+        //check if near the vent
+        if (userSprite.Furnitureby == whisperVent)
+        {
+            //check if the child sprite is close (you paused it at the desired coords to make it easier for the player)
+            if (childNPCSprite.xCoord == 224 && childNPCSprite.yCoord == 182)
+            {
+                whisperSoundElement.play();
+                if (!whisperVent.hasCompleted)
+                {
+                    TextCanvas.currentTextKey = "toiletBreakQuest";
+                    // -1 not 0 to make the rewriteText work correctly
+                    TextCanvas.currentTextArrayIndex = -1;
+                    TextCanvas.totalArrayIndex = allTexts[TextCanvas.currentTextKey].length;
+                    //to make rewriting the text work 
+                    TextCanvas.previousText = allTexts[TextCanvas.currentTextKey][0];
+                    //reset the button
+                    button.status = "progress";
+                    TextCanvas.rewriteText();
+                    whisperVent.hasCompleted = "true"
+                }
+            }
         }
     }
     else

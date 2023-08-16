@@ -42,6 +42,10 @@ const basementBackground = new Background("assets/basement/basement.png",1000, 6
 basementBackground.createImageElement();
 const secondFloorBackground = new Background("assets/secondFloor/secondFloor.png",1000, 600, "playerArea",secondFloorMaps, 32);
 secondFloorBackground.createImageElement();
+const loseBackground = new Background("assets/endGame/lose.png",1000, 600, "playerArea",null, 32);
+loseBackground.createImageElement();
+const winBackground = new Background("assets/endGame/win.png",1000, 600, "playerArea",null, 32);
+winBackground.createImageElement();
 
 
 
@@ -95,8 +99,18 @@ mirror.createBrokenImageElement();
 
 //Basement
 
+const breakerBox = new InteractableItem('assets/basement/Items/breakerBox.png', 278,184, 32,32,true,false,false,null,null) //its in the breakable category but it instead flickers the lights
+breakerBox.createImageElement();
 
+const shelves1  = new InteractableItem('assets/basement/Items/shelf.png', 500, 305, 30,30, false,true,false, ["candy"], null);
+shelves1.createImageElement();
+const shelves2  = new InteractableItem('assets/basement/Items/shelf.png', 380, 175, 30,30, false,true,false, ["candy", "paint"],null);
+shelves2.createImageElement();
+const shelves3  = new InteractableItem('assets/basement/Items/shelf.png', 440, 175, 40,40, false,true,false, ["candy"],null);
+shelves3.createImageElement();
 
+const whisperVent = new DualInteractableItem("assets/basement/Items/vent.png",238,174, 32,32,true);
+whisperVent.createImageElement();
 
 
 
@@ -124,7 +138,9 @@ function updatePlayerArea()
             dresserRight.isClose(userSprite);
 
             bookshelfLeft.drawFurniture();
+            bookshelfLeft.isClose(userSprite);
             bookshelfRight.drawFurniture();
+            bookshelfRight.isClose(userSprite);
             
             chairRightDown.drawDraggableFurniture();    
             chairRightUp.drawDraggableFurniture(); 
@@ -156,6 +172,20 @@ function updatePlayerArea()
             break;
         case 'basement':
             basementBackground.addmap();
+            //add in furniture
+            breakerBox.drawFurniture();
+            breakerBox.isClose(userSprite);   
+
+            shelves1.drawFurniture();
+            shelves1.isClose(userSprite);
+            shelves2.drawFurniture();
+            shelves2.isClose(userSprite);
+            shelves3.drawFurniture();
+            shelves3.isClose(userSprite);
+
+            whisperVent.drawFurniture();
+            whisperVent.isPlayerClose(userSprite);
+
             //add in NPCs
             childNPCSprite.animate();
             childNPCSprite.path();
@@ -164,6 +194,8 @@ function updatePlayerArea()
             userSprite.animate();
             //darken behind the walls
             basementBackground.darkenBehindTheWalls();
+            //used in the flickering light quest
+            basementBackground.flickerLights();
             break;
         case 'secondFloor':
             secondFloorBackground.addmap();
@@ -195,8 +227,10 @@ function updatePlayerArea()
             playerAreaCanvas.transition();
             break;
         case "lost":
+            playerAreaCanvas.ctx.drawImage(loseBackground.imageElement, 0, 0);
             break;
         case "won":
+            playerAreaCanvas.ctx.drawImage(winBackground.imageElement, 0, 0);
             break;
 
     }
