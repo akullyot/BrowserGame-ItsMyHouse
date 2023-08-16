@@ -1,9 +1,12 @@
 # BrowserGame-ItsMyHouse
 Milestone Project 1 for University of Chicago's Software Development Bootcamp
-## Description
-It's My House is a quest based browser game in which the player completes a series of quests to scare the current residents out of their recently foreclosed house, such that they can continue living there.  The idea is based on the movie Within (2016, director Phil Claydon). The player lives within the walls, and must avoid detection by the residents while carrying out the quests they find in a Description of Paranormal Encounters book.
 
- 
+## Description
+It's My House is a browser based game in which the player completes a series of quests to scare the current residents out of their recently foreclosed house, such that they can continue living there.  The idea is based on the movie Within (2016, director Phil Claydon). The player lives within the walls, and must avoid detection by the residents while carrying out the quests they find in a Description of Paranormal Encounters book.
+
+
+ ## Playing the Game
+ The game is deployed on github pages for anyone interested to play by following this link: https://akullyot.github.io/BrowserGame-ItsMyHouse/gameindex.html
 
 
 
@@ -16,8 +19,7 @@ It's My House is a quest based browser game in which the player completes a seri
   ### Audio:
       1.Text Dialogue Sound Effects Provided By Chris Logsdon: https://chrislsound.itch.io/text-dialogue-sfx-pack 
       2.Ambient Horror Music Provided By DHSFX : https://dhsfx.co.uk/
-      3.Basic SFX Sound Effects Provided By Davit Masia:   https://kronbits.itch.io/freesfx/download/
-                eyJpZCI6NDg2NTIyLCJleHBpcmVzIjoxNjkyMDE2MjQ2fQ%3d%3d.OYaaaIoJmUkheaDFsSjxOpxuSv4%3d
+      3.Basic SFX Sound Effects Provided By Davit Masia: https://kronbits.itch.io/freesfx/download/eyJpZCI6NDg2NTIyLCJleHBpcmVzIjoxNjkyMDE2MjQ2fQ%3d%3d.OYaaaIoJmUkheaDFsSjxOpxuSv4%3d
 
   ### Images:
     1.Tilesets provided by Modern Interiors: RPG Tileset : https://limezu.itch.io/moderninteriors
