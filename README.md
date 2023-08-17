@@ -9,6 +9,11 @@ It's My House is a browser based game in which the player completes a series of 
  The game is deployed on github pages for anyone interested to play by following this link: https://akullyot.github.io/BrowserGame-ItsMyHouse/gameindex.html
 
 
+## Future Improvements
+
+There are still things I wish to implement and improve within this game, including:
+1. Forcing linear quest progression
+2. 
 
 
 
