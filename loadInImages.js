@@ -1,5 +1,5 @@
 //Purpose: load in every image used by the player canvas
-//         And Create the playerAreaCanvas requestAnimationFrame infinite looper
+//         and Create the playerAreaCanvas requestAnimationFrame infinite looper
 
 
 //Used in creating the canvases

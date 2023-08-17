@@ -150,7 +150,7 @@ class ImageClass
     }
 }
 // Purpose        : Holds all the items that are pickupable, searchable, breakable, and a few other more unique features (flicker lights and turn on radio)
-// Instantiations :
+// Instantiations : stove, fridge, bookshelfleft, bookshelfright,vanity,dresserleft,dresserright, toilet,book,doll,dressersecond,mirror,breakerbox,shelves1,shelves2,shelves3,
 // ChildClasses   : DraggableItem, DualInteractableItem (Note: this ideally should be extended but has not been due to time constraints/not the best plannign (extended to a breakable, and then pickup/isopenable should be together)
 class InteractableItem extends ImageClass
 {
@@ -456,8 +456,8 @@ class DraggableItem extends InteractableItem
             //if they have 
     }
 }
-//Purpose         :
-//Instantiations  : vent, bed
+//Purpose         : Creates an item that can trigger a progression iff the player and the NPC of that floor are close to the item
+//Instantiations  : whisperVent
 //ChildClasses    : none
 class DualInteractableItem extends InteractableItem
 {
@@ -503,9 +503,9 @@ class DualInteractableItem extends InteractableItem
     }
 
 }
-//Purpose         :
-//Instantiations  :
-//ChildClasses    : nonPlayable Character
+//Purpose         : Creates image element that are able to be moved using animations
+//Instantiations  : userSprite
+//ChildClasses    : nonPlayableCharacter (ideally it should also have a PlayableCharacter child and userSprite should be defined there)
 //TODO there should be a user and a nonplayable child class child, with them being sisters
 class MoveableImage extends ImageClass
 {
@@ -1223,9 +1223,9 @@ class NonPlayableCharacter extends MoveableImage
         }
     }
 }
-//Purpose         :
-//Instantiations  :
-//ChildClasses    : none
+//Purpose         : Holds all the mapping arrays and images associated with floor backgrounds on the playerAreaCanvas
+//Instantiations  : firstFloorBackground, secondFloorBackground, basementBackground
+//ChildClasses    : none (wall and its children could theoretically make sense but I didnt do it that way)
 class Background extends ImageClass
 {
     constructor (src, height, width, canvasID ,mapArrayObject,tileSize,floor)
@@ -1408,9 +1408,9 @@ class Background extends ImageClass
     }
 
 }
-//Purpose         :
-//Instantiations  :
-//ChildClasses    : none
+//Purpose         : Loops through background mapping array information, and when it hits a 1 performs tasks like collision detection
+//Instantiations  : they are temporary but each time it hits a 1 it makes a Wall object in the loop
+//ChildClasses    : Door, Stair
 class Wall 
 {
     constructor (xCoord,yCoord)
@@ -1437,9 +1437,10 @@ class Wall
             } 
     }
 }
-//Purpose         :
-//Instantiations  :
-//ChildClasses    : Door, Stair
+//Purpose         : Loops through background mapping array information, and when it hits a 1 performs tasks like collision detection for paintings
+//Instantiations  : they are temporary but each time it hits a 1 it makes a Door object in the loop
+//ChildClasses    : none
+//TODO your collision detection has some major problems
 class Door extends Wall
 {
     constructor(xCoord,yCoord)
@@ -1549,9 +1550,9 @@ class Door extends Wall
     }
 }
 }
-//Purpose         :
-//Instantiations  :
-//ChildClasses    : 
+//Purpose         : Loops through background mapping array information, and when it hits a 1 or 2 performs tasks like collision detection for stairs
+//Instantiations  : they are temporary but each time it hits a 1 it makes a upstairs object in the loop, or a downstairs object
+//ChildClasses    : none
 class Stair extends Wall
 {
     constructor(xCoord,yCoord,type)
