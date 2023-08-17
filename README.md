@@ -13,7 +13,8 @@ It's My House is a browser based game in which the player completes a series of 
 
 There are still things I wish to implement and improve within this game, including:
 1. Forcing linear quest progression
-2. 
+2. A startgame animation
+3. Modifying door collision detection
 
 
 
@@ -23,11 +24,14 @@ There are still things I wish to implement and improve within this game, includi
 ## Image and Audio Credits:
   ### Audio:
       1.Text Dialogue Sound Effects Provided By Chris Logsdon: https://chrislsound.itch.io/text-dialogue-sfx-pack 
+      
       2.Ambient Horror Music Provided By DHSFX : https://dhsfx.co.uk/
+      
       3.Basic SFX Sound Effects Provided By Davit Masia: https://kronbits.itch.io/freesfx/download/eyJpZCI6NDg2NTIyLCJleHBpcmVzIjoxNjkyMDE2MjQ2fQ%3d%3d.OYaaaIoJmUkheaDFsSjxOpxuSv4%3d
 
   ### Images:
     1.Tilesets provided by Modern Interiors: RPG Tileset : https://limezu.itch.io/moderninteriors
+    
     2.Sprite Characters provided by LPC Sprite Generator and the following artists:
             Authors: bluecarrot16, Benjamin K. Smith (BenCreating), Evert, Eliza Wyatt (ElizaWy), TheraHedwig, MuffinElZangano, Durrani, Johannes Sj?    
             lund (wulax), Stephen Challener (Redshrike), ElizaWy, Mark Weyer, Johannes Sjölund (wulax), Matthew Krohn (makrohn), David Conway Jr. 
