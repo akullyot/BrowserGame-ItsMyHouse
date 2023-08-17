@@ -107,8 +107,8 @@ class Canvas
 }
 
 // Purpose        : The most basic Image class.  All items drawn onto any canvas are included in this base class.
-// Instantiations :
-// ChildClasses   :
+// Instantiations : startledDialog, warningDialog, candle,candy,mace,paint,statsBackground, textBackground (I know confusing name, this one is static bacgkround class isnt), halfbar,fullbar,fullheart,heartcover
+// ChildClasses   : InteractableItem, MoveableImage,Background,ButtonClass
 class ImageClass 
 {
     constructor (src, xCoord, yCoord, height, width, canvasID )
@@ -149,9 +149,9 @@ class ImageClass
         }
     }
 }
-// Purpose        :
+// Purpose        : Holds all the items that are pickupable, searchable, breakable, and a few other more unique features (flicker lights and turn on radio)
 // Instantiations :
-// ChildClasses   : DraggableItem   (Note: this ideally should be extended but has not been due to time constraints/not the best plannign (extended to a breakable, and then pickup/isopenable should be together)
+// ChildClasses   : DraggableItem, DualInteractableItem (Note: this ideally should be extended but has not been due to time constraints/not the best plannign (extended to a breakable, and then pickup/isopenable should be together)
 class InteractableItem extends ImageClass
 {
     constructor (src, xCoord, yCoord, height, width,isBreakable,isOpenable,isPickupItem,itemsInside,brokenSrc)
