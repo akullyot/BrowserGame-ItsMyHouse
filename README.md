@@ -8,6 +8,7 @@ It's My House is a browser based game in which the player completes a series of 
  ## Playing the Game
  The game is deployed on github pages for anyone interested to play by following this link: https://akullyot.github.io/BrowserGame-ItsMyHouse/gameindex.html
 
+Move the player with W,A,S,D or arrow keys.  Interact with items using the instructions given in the text area.
 
 ## Future Improvements
 
@@ -15,8 +16,7 @@ There are still things I wish to implement and improve within this game, includi
 1. Forcing linear quest progression
 2. A startgame animation
 3. Modifying door collision detection
-
-
+4. Player instructions page
 
 
 
