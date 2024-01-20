@@ -1,21 +1,35 @@
 //Area in which key events are captured and defined
 //Purpose: used for getting the correct painting entry orientation
 // Options: left, right, up, down
+
 let previousWalkingDirection = null;
 
-//Purpose: describes the spriteSheet
+//Purpose: describes the full spriteSheet for animation snipping purposes
+
 const animationInformation = 
 {
-    walkUp: {totalFrame: 7, spriteRow: 8},
-    walkLeft:{totalFrame: 7, spriteRow: 9},
-    walkDown:{totalFrame: 7, spriteRow: 10},
-    walkRight: {totalFrame: 7, spriteRow: 11},
-    crouch: {},
-    punchUp: {},
-    punchDown: {},
-    punchLeft: {},
-    punchRight: {}
+    walkUp:   {totalFrame: 7, spriteRow: 8},
+    walkLeft: {totalFrame: 7, spriteRow: 9},
+    walkDown: {totalFrame: 7, spriteRow: 10},
+    walkRight:{totalFrame: 7, spriteRow: 11},
+    crouch:   {totalFrame: 5, spriteRow: 12},
+    punchUp:  {totalFrame: 4, spriteRow: 13},
+    punchDown:{totalFrame: 4, spriteRow: 14},
+    punchLeft:{totalFrame: 4, spriteRow: 15},
+    punchRight:{totalFrame: 4, spriteRow: 16}
 }
+
+//interface for total frame and sprite row
+interface animationInformation {
+    walkUp : frameAndRow
+
+}
+interface frameAndRow {
+    totalFrame : number,
+    spriteRow : number
+}
+// and then higher up have an interface is the animation information
+
 //Purpose: holds all click events
 document.addEventListener("keydown", async function (e){
     userSprite.getPreviousXandY();
@@ -320,8 +334,6 @@ document.addEventListener("keyup", e =>
 {
     userSprite.animateBoolean = false;
 })
-
-
 
 
 window.onload = () =>

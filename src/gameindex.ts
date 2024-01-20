@@ -1,9 +1,9 @@
-// Purpose       : create a canvas HTML element. This also includes functionality for displaying transition animations, such as stair movements or win/lsoe animations
+// Purpose       : create a canvas HTML element. This also includes functionality for displaying transition animations, such as stair movements or win/lose animations
 // Instantiations: PlayerAreaCanvas
 // ChildClasses  : ClickableCanvas,InventoryCanvas
 class Canvas
 {
-    constructor(canvasID, width, height, floor)
+    constructor(canvasID, width:number, height:number, floor:number)
     {
         this.width           = width;
         this.height          = height;
